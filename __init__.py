@@ -7,7 +7,8 @@ class NexcloudCalendar(MycroftSkill):
 
     @intent_file_handler('calendar.nexcloud.intent')
     def handle_calendar_nexcloud(self, message):
-        self.speak_dialog('calendar.nexcloud')
+        data = {"date": "June 29, 2020", "time": "4 pm", "title": "Speech Interaction class"}
+        self.speak_dialog('calendar.nexcloud', data)
 
 
 def create_skill():
