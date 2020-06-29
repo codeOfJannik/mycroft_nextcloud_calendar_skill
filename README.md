@@ -1,4 +1,4 @@
-# <img src="https://raw.githack.com/FortAwesome/Font-Awesome/master/svgs/solid/calendar.svg" card_color="#FF8D00" width="50" height="50" style="vertical-align:bottom"/> Nexcloud Calendar
+# <img src="https://raw.githack.com/FortAwesome/Font-Awesome/master/svgs/solid/calendar.svg" card_color="#FF8D00" width="50" height="50" style="vertical-align:bottom"/> Nextcloud Calendar
 Interact with a nextcloud calendar
 
 ## About
