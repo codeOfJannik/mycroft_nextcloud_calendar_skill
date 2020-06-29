@@ -4,4 +4,4 @@ cancel all appointments for (today|tomorrow)
 cancel (todays|tommorows) appointments
 get (the|all) appointments for {date}
 do i have any appointments on {date}
-add new appointment on {date} 
+add new appointment on {date} from {startHour} to {endHour} with the title {title} 
