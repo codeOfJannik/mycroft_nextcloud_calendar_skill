@@ -122,3 +122,25 @@ Feature: nextcloud-calendar
     | create an appointment titled Speech Interaction class on next Monday at 4 pm |
     | create a new appointment for Playing Tennis on August 13th at 7pm |
     | schedule a meeting with Barack Obama on Thanksgiving at lunch time |
+
+  Scenario: cancel specific appointment
+    Given an english speaking user
+     When the user says <cancel Speech Interaction class on next Monday>
+     Then "nextcloud-calendar" should reply with dialog from "cancel.specific.appointment.request.confirmation"
+
+  Example: Cancel Speech Interaction class on next Monday
+    | cancel Speech Interaction class on next Monday |
+    | cancel my appointment on next Wednesday 3 pm |
+    | delete my next appointment |
+
+
+  Scenario: cancel all appointments in time period
+    Given an english speaking user
+     When the user says <cancel all appointments on next Monday>
+     Then "nextcloud-calendar" should reply with dialog from "cancel.time.appointment.request.confirmation"
+
+  Example: Cancel all appointments on next Monday
+    | cancel all appointments on next Monday |
+    | cancel my appointments on next Wednesday |
+    | cancel all appointments scheduled for next week |
+    | delete all appointments in June |
