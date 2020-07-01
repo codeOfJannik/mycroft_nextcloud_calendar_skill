@@ -126,7 +126,7 @@ Feature: nextcloud-calendar
   Scenario: cancel specific appointment
     Given an english speaking user
      When the user says <cancel Speech Interaction class on next Monday>
-     Then "nextcloud-calendar" should reply with dialog from "cancel.specific.appointment.request.confirmation"
+     Then "nextcloud-calendar" should reply with dialog from "cancel.specific.appointment.request.confirmation.dialog"
 
   Example: Cancel Speech Interaction class on next Monday
     | cancel Speech Interaction class on next Monday |
@@ -137,7 +137,7 @@ Feature: nextcloud-calendar
   Scenario: cancel all appointments in time period
     Given an english speaking user
      When the user says <cancel all appointments on next Monday>
-     Then "nextcloud-calendar" should reply with dialog from "cancel.time.appointment.request.confirmation"
+     Then "nextcloud-calendar" should reply with dialog from "cancel.time.appointment.request.confirmation.dialog"
 
   Example: Cancel all appointments on next Monday
     | cancel all appointments on next Monday |
