@@ -1,0 +1,4 @@
+your next appointment is on {date} at {time} and is entitled {title}.
+your next appointment is on {date} from {startHour} to {endHour} and is entitled {title}
+your next appointment is on {date} at {time}
+your next appointment is on {date}
