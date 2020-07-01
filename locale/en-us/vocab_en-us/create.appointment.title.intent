@@ -1,0 +1,3 @@
+(create|plan) an appointment entitled {title}
+(create|plan) a new appointment for {title}
+schedule a {title}

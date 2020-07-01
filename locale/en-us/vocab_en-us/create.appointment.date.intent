@@ -1,0 +1,5 @@
+(create|plan) a new appointment (on|) {date}
+(create|plan) an appointment (on|) {date}
+(create|plan) a new appointment (on|) {date} at {startHour}
+(create|plan) an appointment (on|) {date} at {startHour}
+

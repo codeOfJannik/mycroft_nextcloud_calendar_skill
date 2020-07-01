@@ -1,0 +1,2 @@
+do i have an appointment (on|) {date}
+do i have an appointment at {startHour}

@@ -1,7 +1,0 @@
-what is (the|my) next appointment
-cancel all appointments for (today|tomorrow)
-(cancel|remove|delete) all appointments for {date}
-cancel (todays|tommorows) appointments
-get (the|all) appointments for {date}
-do i have any appointments on {date}
-add new appointment on {date} from {startHour} to {endHour} with the title {title} 
