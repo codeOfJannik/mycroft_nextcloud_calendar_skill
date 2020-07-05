@@ -1,5 +1,22 @@
 from mycroft import MycroftSkill, intent_file_handler
+import caldav
 
+class NextcloudInterface:
+    def __init__(self):
+        # TODO: where to store credentials?
+        self.client = caldav.DAVClient() #TODO: add credentials
+        self.calendars = self.fetch_calendars()
+
+    def fetch_calendars(self):
+        my_principal = self.client.principal()
+        return my_principal.calendars()
+
+    def get_events_for_timeperiod(self, calendar, startdate, enddate):
+        events = calendar.date_search(start=startdate, end=enddate, expand=True)
+
+    def delete_events(self, events):
+        for event in events:
+            event.delete()
 
 class NexcloudCalendar(MycroftSkill):
     def __init__(self):
