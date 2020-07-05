@@ -1,4 +1,4 @@
-(create|plan) a new appointment (on|) {date} from {startHour} to {endHour} entitled {title}
-(create|plan) an appointment (on|) {date} from {startHour} to {endHour} entitled {title}
-add a new appointment to my calendar (on|) {date} from {startHour} to {endHour} entitled {title}
+(create|plan) a new (appointment|event) (on|) {date} from {startHour} to {endHour} entitled {title}
+(create|plan) an (appointment|event) (on|) {date} from {startHour} to {endHour} entitled {title}
+add a new (appointment|event) to my calendar (on|) {date} from {startHour} to {endHour} entitled {title}
 

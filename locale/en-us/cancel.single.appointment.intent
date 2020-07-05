@@ -1,2 +1,2 @@
-(cancel|delete) my next appointment
-(cancel|delete) my appointment (on|) {date}
+(cancel|delete) my next (appointment|event)
+(cancel|delete) my (appointment|event) (on|) {date}
