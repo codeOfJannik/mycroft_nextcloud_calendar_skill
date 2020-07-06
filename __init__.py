@@ -5,7 +5,14 @@ import calendar
 class NextcloudCalendar(MycroftSkill):
     def __init__(self):
         MycroftSkill.__init__(self)
-        self.caldav_interface = CalDavInterface()
+        self.caldav_interface = None
+
+    def initialize(self):
+        self.caldav_interface = CalDavInterface(
+            self.settings.get('url'),
+            self.settings.get('username'),
+            self.settings.get('password')
+        )
 
     @intent_file_handler('calendar.nexcloud.intent')
     def handle_calendar_nexcloud(self, message):

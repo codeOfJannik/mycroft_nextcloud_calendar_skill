@@ -1,20 +1,14 @@
-
 skillMetadata:
   sections:
-    - name: Options << Name of section
+    - name: Nexcloud Login << Name of another section
       fields:
-        - name: internal_python_variable_name
+        - name: my_string
           type: text
-          label: Setting Friendly Display Name
+          label: Enter CalDav URL
           value: ""
-          placeholder: demo prompt in the input box
-    - name: Login << Name of another section
-      fields:
-        - type: label
-          label: Just a little bit of extra info for the user to understand following settings
-        - name: username
-          type: text
-          label: Username
+        - name: my_email_address
+          type: email
+          label: Enter your email address
           value: ""
         - name: password
           type: password
