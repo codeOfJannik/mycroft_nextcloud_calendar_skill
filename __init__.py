@@ -9,9 +9,7 @@ class NextcloudCalendar(MycroftSkill):
         self.caldav_interface = None
 
     def initialize(self):
-        while not os.path.exists("./settings.json"):
-            pass
-        
+        print(self.settings)
         username = self.settings.get('username')
         password = self.settings.get('password')
         url = self.settings.get('url')
