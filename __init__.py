@@ -8,6 +8,20 @@ class NextcloudCalendar(MycroftSkill):
         self.caldav_interface = None
 
     def initialize(self):
+        username = self.settings.get('username')
+        password = self.settings.get('password')
+        url = self.settings.get('url')
+
+        if not username:
+            self.speak_dialog('err.nextcloud.settings.missing')
+            return False
+        elif not password:
+            self.speak_dialog('err.nextcloud.settings.missing')
+            return False
+        elif not url:
+            self.speak_dialog('err.nextcloud.settings.missing')
+            return False
+
         self.caldav_interface = CalDavInterface(
             self.settings.get('url'),
             self.settings.get('username'),
@@ -48,7 +62,7 @@ class NextcloudCalendar(MycroftSkill):
             "time": time_formatted,
             "title": title
         }
-        self.speak_dialog('next.appointment.details.dialog', data)
+        self.speak_dialog('next.appointment.details', data)
 
 
 def create_skill():
