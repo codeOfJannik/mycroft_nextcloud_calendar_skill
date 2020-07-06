@@ -2,11 +2,11 @@ skillMetadata:
   sections:
     - name: Nexcloud Login
       fields:
-        - name: my_string
+        - name: url
           type: text
           label: Enter CalDav URL
           value: ""
-        - name: my_email_address
+        - name: username
           type: email
           label: Enter your email address
           value: ""
