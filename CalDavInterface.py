@@ -1,5 +1,4 @@
 import caldav
-import json
 from datetime import datetime
 import icalendar
 import pytz
