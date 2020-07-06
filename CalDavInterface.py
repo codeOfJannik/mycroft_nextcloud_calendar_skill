@@ -28,14 +28,12 @@ def get_event_details(event):
 
 class CalDavInterface:
     def __init__(self, url, username, password):
-        with open("credentials.json") as credentials_file:
-            credentials = json.load(credentials_file)
-            self.client = caldav.DAVClient(
-                url=url,
-                username=username,
-                password=password
-            )
-            self.calendar = self.get_calendar()
+        self.client = caldav.DAVClient(
+            url=url,
+            username=username,
+            password=password
+        )
+        self.calendar = self.get_calendar()
 
     def get_calendar(self):
         my_principal = self.client.principal()

@@ -25,7 +25,7 @@ class NextcloudCalendar(MycroftSkill):
     #     # TODO: get all appointments on date
     #     # TODO: Delete all appointments and respond with confirmation on cancellation OR
     #     # TODO: respond with summary of appointments that will be deleted and ask for confirmation
-    # 
+    #
     # @intent_file_handler('get.appointment.date.intent')
     # def handle_appointment_request_for_datetime(self, message):
     #     date = message.data.get('date')  # TODO: parse date
