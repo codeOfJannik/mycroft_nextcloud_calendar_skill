@@ -1,6 +1,6 @@
 skillMetadata:
   sections:
-    - name: Nexcloud Login << Name of another section
+    - name: Nexcloud Login
       fields:
         - name: my_string
           type: text

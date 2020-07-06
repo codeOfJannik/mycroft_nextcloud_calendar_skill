@@ -1,6 +1,7 @@
 from mycroft import MycroftSkill, intent_file_handler
 from .CalDavInterface import *
 import calendar
+import os
 
 class NextcloudCalendar(MycroftSkill):
     def __init__(self):
@@ -8,6 +9,9 @@ class NextcloudCalendar(MycroftSkill):
         self.caldav_interface = None
 
     def initialize(self):
+        while not os.path.exists("./settings.json"):
+            pass
+        
         username = self.settings.get('username')
         password = self.settings.get('password')
         url = self.settings.get('url')
