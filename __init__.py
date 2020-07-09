@@ -1,7 +1,40 @@
 from mycroft import MycroftSkill, intent_file_handler
 from .CalDavInterface import *
 import calendar
-import os
+
+
+def format_datetime_for_output(datetime):
+    date_formatted = "{month} {day}, {year}".format(
+        month=calendar.month_name[datetime.month],
+        day=datetime.day,
+        year=datetime.year
+    )
+    time_formatted = datetime.strftime("%I:%M %p")
+    return date_formatted, time_formatted
+
+
+def is_fullday_event(startdatetime, enddatetime):
+    return (
+        enddatetime.day == startdatetime.day + 1
+        and startdatetime.hour == 0
+        and startdatetime.minute == 0
+        and startdatetime.second == 0
+        and enddatetime.hour == 0
+        and enddatetime.minute == 0
+        and enddatetime.second == 0
+    )
+
+def is_multiple_fullday_event(startdatetime, enddatetime):
+    return (
+        startdatetime.hour == 0
+        and startdatetime.minute == 0
+        and startdatetime.second == 0
+        and enddatetime.hour == 0
+        and enddatetime.minute == 0
+        and enddatetime.second == 0
+    )
+
+
 
 class NextcloudCalendar(MycroftSkill):
     def __init__(self):
@@ -52,18 +85,43 @@ class NextcloudCalendar(MycroftSkill):
         next_event = self.caldav_interface.get_next_event()
         title = next_event["title"]
         startdate_time = next_event["starttime"]
-        date_formatted = "{month} {day}, {year}".format(
-            month=calendar.month_name[startdate_time.month],
-            day=startdate_time.day,
-            year=startdate_time.year
-        )
-        time_formatted = startdate_time.strftime("%I:%M %p")
-        data = {
-            "date": date_formatted,
-            "time": time_formatted,
-            "title": title
-        }
-        self.speak_dialog('next.appointment.details', data)
+        enddate_time = next_event["endtime"]
+        startdate_formatted, starttime_formatted = format_datetime_for_output(startdate_time)
+        enddate_formatted, endtime_formatted = format_datetime_for_output(enddate_time)
+        if is_fullday_event(startdate_time, enddate_time):
+            if title is not None:
+                self.speak_dialog(
+                    "next.appointment.fullday.title.dialog",
+                    {"date": startdate_formatted, "title": title}
+                )
+            else:
+                self.speak_dialog(
+                    "next.appointment.fullday.dialog",
+                    {"date": startdate_formatted}
+                )
+            return
+        if is_multiple_fullday_event(startdate_time, enddate_time):
+            if title is not None:
+                self.speak_dialog(
+                    "next.appointment.multiple.fullday.title.dialog",
+                    {"startdate": startdate_formatted, "enddate": enddate_formatted, "title": title}
+                )
+            else:
+                self.speak_dialog(
+                    "next.appointment.multiple.fullday.dialog",
+                    {"startdate": startdate_formatted, "enddate": enddate_formatted}
+                )
+            return
+        if title is not None:
+            self.speak.dialog(
+                "next.appointment.startdatetime.dialog",
+                {"date": startdate_formatted, "time": starttime_formatted}
+            )
+        else:
+            self.speak.dialog(
+                "next.appointment.startdatetime.title.dialog",
+                {"date": startdate_formatted, "time": starttime_formatted, "title": title}
+            )
 
 
 def create_skill():
