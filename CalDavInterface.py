@@ -1,10 +1,10 @@
 import caldav
-import json
-from datetime import datetime
+from datetime import datetime, date
 import icalendar
 import pytz
 
 utc = pytz.UTC
+
 
 def delete_events(events):
     for event in events:
@@ -20,22 +20,33 @@ def parse_ics_events(events):
 
 
 def get_event_details(event):
-    start = event["DTSTART"].dt
-    end = event["DTEND"].dt
-    title = str(event["SUMMARY"])
+    start = None
+    if "DTSTART" in event.keys():
+        start = event["DTSTART"].dt
+        if type(start) == date:
+            start = datetime.combine(start, datetime.min.time())
+            start = start.replace(tzinfo=utc)
+    end = None
+    if "DTEND" in event.keys():
+        end = event["DTEND"].dt
+        if type(end) == date:
+            end = datetime.combine(end, datetime.min.time())
+            end = end.replace(tzinfo=utc)
+    title = None
+    if "SUMMARY" in event.keys():
+        title = str(event["SUMMARY"])
+
     return {"title": title, "starttime": start, "endtime": end}
 
 
 class CalDavInterface:
-    def __init__(self):
-        with open("credentials.json") as credentials_file:
-            credentials = json.load(credentials_file)
-            self.client = caldav.DAVClient(
-                url=credentials["url"],
-                username=credentials["username"],
-                password=credentials["password"]
-            )
-            self.calendar = self.get_calendar()
+    def __init__(self, url, username, password):
+        self.client = caldav.DAVClient(
+            url=url,
+            username=username,
+            password=password
+        )
+        self.calendar = self.get_calendar()
 
     def get_calendar(self):
         my_principal = self.client.principal()
@@ -55,3 +66,8 @@ class CalDavInterface:
             current_time = now.replace(tzinfo=starttime.tzinfo)
             if starttime > current_time:
                 return event
+
+
+interface = CalDavInterface("https://next.social-robot.info/nc/remote.php/dav", "js329@hdm-stuttgart.de", "IhmNP2.0v!")
+event = interface.get_next_event()
+print(event)
