@@ -66,6 +66,7 @@ class CalDavInterface:
             current_time = now.replace(tzinfo=starttime.tzinfo)
             if starttime > current_time:
                 return event
+        return None
 
 
 interface = CalDavInterface("https://next.social-robot.info/nc/remote.php/dav", "js329@hdm-stuttgart.de", "IhmNP2.0v!")

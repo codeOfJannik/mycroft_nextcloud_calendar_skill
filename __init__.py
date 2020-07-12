@@ -83,6 +83,9 @@ class NextcloudCalendar(MycroftSkill):
     @intent_file_handler('get.next.appointment.intent')
     def handle_get_next_appointment(self, message):
         next_event = self.caldav_interface.get_next_event()
+        if next_event is None:
+            self.speak_dialog("no.next.appointment")
+            return
         title = next_event["title"]
         startdate_time = next_event["starttime"]
         enddate_time = next_event["endtime"]
