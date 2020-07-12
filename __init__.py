@@ -80,7 +80,7 @@ class NextcloudCalendar(MycroftSkill):
         # because we are using Python v3.7.3 the order of the keys of the dictionary is the the same as inserted,
         # so we can iterate over the keys to generate the correct dialog filenames
         for key in data.keys():
-            dialog_filename += ".".join(key)
+            dialog_filename += "." + key
         self.speak_dialog(dialog_filename, data)
 
 
