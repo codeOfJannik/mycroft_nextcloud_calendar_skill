@@ -112,7 +112,7 @@ class NextcloudCalendar(MycroftSkill):
                     {"startdate": startdate_formatted, "enddate": enddate_formatted}
                 )
             return
-        if title is not None:
+        if title is None:
             self.speak_dialog(
                 "next.appointment.startdatetime",
                 {"date": startdate_formatted, "time": starttime_formatted}
