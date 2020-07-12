@@ -1,5 +1,0 @@
-(create|plan) a new (appointment|event) (on|) {date}
-(create|plan) an (appointment|event) (on|) {date}
-(create|plan) a new (appointment|event) (on|) {date} at {startHour}
-(create|plan) an (appointment|event) (on|) {date} at {startHour}
-

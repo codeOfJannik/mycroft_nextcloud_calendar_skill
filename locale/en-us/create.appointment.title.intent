@@ -1,3 +1,0 @@
-(create|plan) an (appointment|event) entitled {title}
-(create|plan) a new (appointment|event) for {title}
-schedule a {title}
