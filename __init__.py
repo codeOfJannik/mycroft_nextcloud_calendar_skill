@@ -91,35 +91,35 @@ class NextcloudCalendar(MycroftSkill):
         if is_fullday_event(startdate_time, enddate_time):
             if title is not None:
                 self.speak_dialog(
-                    "next.appointment.fullday.title.dialog",
+                    "next.appointment.fullday.title",
                     {"date": startdate_formatted, "title": title}
                 )
             else:
                 self.speak_dialog(
-                    "next.appointment.fullday.dialog",
+                    "next.appointment.fullday",
                     {"date": startdate_formatted}
                 )
             return
         if is_multiple_fullday_event(startdate_time, enddate_time):
             if title is not None:
                 self.speak_dialog(
-                    "next.appointment.multiple.fullday.title.dialog",
+                    "next.appointment.multiple.fullday.title",
                     {"startdate": startdate_formatted, "enddate": enddate_formatted, "title": title}
                 )
             else:
                 self.speak_dialog(
-                    "next.appointment.multiple.fullday.dialog",
+                    "next.appointment.multiple.fullday",
                     {"startdate": startdate_formatted, "enddate": enddate_formatted}
                 )
             return
         if title is not None:
             self.speak.dialog(
-                "next.appointment.startdatetime.dialog",
+                "next.appointment.startdatetime",
                 {"date": startdate_formatted, "time": starttime_formatted}
             )
         else:
             self.speak.dialog(
-                "next.appointment.startdatetime.title.dialog",
+                "next.appointment.startdatetime.title",
                 {"date": startdate_formatted, "time": starttime_formatted, "title": title}
             )
 
