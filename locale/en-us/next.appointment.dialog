@@ -1,7 +1,1 @@
-your next appointment is on {startdate}
-your next appointment is on {startdate} and is entitled {title}
-your next appointment is starting on {startdate} and ending on {enddate}
-your next appointment is starting on {startdate}, ending on {enddate} and is entitled {title}
-your next appointment is on {startdate} at {time}
-your next appointment is on {startdate} at {time} and is entitled {title}
 There are no future appointments planned in your calendar

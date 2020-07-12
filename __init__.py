@@ -13,7 +13,13 @@ def format_datetime_for_output(date_time):
     return date_formatted, time_formatted
 
 
-def is_multiple_fullday_event(startdatetime, enddatetime):
+def is_multiple_fulldays_event(startdatetime, enddatetime):
+    fullday = is_fullday_event(startdatetime, enddatetime)
+    delta = enddatetime - startdatetime
+    return fullday and delta.days > 1
+
+
+def is_fullday_event(startdatetime, enddatetime):
     return (
         startdatetime.hour == 0
         and startdatetime.minute == 0
@@ -53,26 +59,29 @@ class NextcloudCalendar(MycroftSkill):
     @intent_file_handler('get.next.appointment.intent')
     def handle_get_next_appointment(self, message):
         next_event = self.caldav_interface.get_next_event()
-        if next_event is None:
-            self.speak_dialog("next.appointment")
-            return
-        title = next_event["title"]
-        startdate_time = next_event["starttime"]
-        enddate_time = next_event["endtime"]
-        startdate_formatted, starttime_formatted = format_datetime_for_output(startdate_time)
-        enddate_formatted, endtime_formatted = format_datetime_for_output(enddate_time)
-        data = {"startdate": startdate_formatted}
-        if is_multiple_fullday_event(startdate_time, enddate_time):
-            data["enddate"] = enddate_formatted
-        else:
-            data["time"] = starttime_formatted
+        data = {}
+        dialog_filename = "next.appointment"
+        if next_event is not None:
+            title = next_event["title"]
+            startdate_time = next_event["starttime"]
+            enddate_time = next_event["endtime"]
+            startdate_formatted, starttime_formatted = format_datetime_for_output(startdate_time)
+            enddate_formatted, endtime_formatted = format_datetime_for_output(enddate_time)
+            data["startdate"] = startdate_formatted
+            if is_multiple_fulldays_event(startdate_time, enddate_time):
+                data["enddate"] = enddate_formatted
+            else:
+                if not is_fullday_event(startdate_time, enddate_time):
+                    data["time"] = starttime_formatted
 
-        if title is not None:
-            data["title"] = title
+            if title is not None:
+                data["title"] = title
 
-        self.speak_dialog("next.appointment", data)
-
-
+        # because we are using Python v3.7.3 the order of the keys of the dictionary is the the same as inserted,
+        # so we can iterate over the keys to generate the correct dialog filenames
+        for key in data.keys():
+            dialog_filename += ".".join(key)
+        self.speak_dialog(dialog_filename, data)
 
 
 def create_skill():
