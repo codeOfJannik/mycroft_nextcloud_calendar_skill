@@ -1,4 +1,4 @@
-#Mycroft Projekt 
+# Mycroft Projekt 
 
 ## Projektgruppe
 Jannik Schlemmer (js329@hdm-stuttgart.de)
@@ -16,7 +16,7 @@ auf der nextcloud-Instanz (https://next.social-robot.info/nc) zur Verfügung.
 
 Über einen eigenen github-Account verfügten wir bereits.
 
-##Aufgabenstellung
+## Aufgabenstellung
 Ziel ist es einen eigenen Skill zu entwickeln, der die nächsten Eintragungen in einem nextcloud-Kalender
 verkünden soll. Folgende Bonusaufgaben sind optional:
 - Kalendereintrag machen
@@ -37,7 +37,7 @@ Folgender Link war hierfür sehr hilfreich: https://elinux.org/R-Pi_Troubleshoot
 `sudo modprobe snd_bcm2835`
 
 ### 3. Output auswählen
-`amixer cset numid=X <n>
+ `amixer cset numid=X <n>` 
 
 0 = auto, 1 = Kopfhörer, 2= HDM)
 
@@ -57,6 +57,8 @@ wurden die Testfiles angelegt, mit den Vorüberlegungen welche Grundfunktionen d
 möglich sein sollten. Basierend auf diesen Testfiles wurden anschließend die jeweiligen .dialog 
 und .intent Dateien angelegt, ebenfalls mit Vorüberlegungen auf welche Weise der Benutzer
 die Sätze jeweils anders formulieren könnte und dennoch eine Antwort erwartet.
+
+##Implementierung
 
 
 
