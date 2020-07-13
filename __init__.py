@@ -1,9 +1,22 @@
+"""A Mycroft AI skill for voice interaction with a Nextcloud calendar.
+
+Main class 'NextcloudCalendar' contains intent handler
+for intent files in directory locale/en-us. Each intent
+handler gets the relevant calendar information for
+the specific intent and chooses a suitable response
+from the dialog files.
+"""
 from mycroft import MycroftSkill, intent_file_handler
 from .CalDavInterface import *
 import calendar
 
 
 def format_datetime_for_output(date_time):
+    """
+    Formats a datetime object to string objects for date and time, that can be used in speech output
+    :param date_time: datetime object that should be formatted
+    :return: a string for the date and the time each
+    """
     date_formatted = "{month} {day}, {year}".format(
         month=calendar.month_name[date_time.month],
         day=date_time.day,
@@ -14,12 +27,25 @@ def format_datetime_for_output(date_time):
 
 
 def is_multiple_fulldays_event(startdatetime, enddatetime):
+    """
+    Checks if an event is a multi-day & full-day event
+    by comparing start datetime and end datetime of the event
+    :param startdatetime: Start datetime of the event
+    :param enddatetime: End datetime of the event
+    :return: [bool] True if multi-day & full-day
+    """
     fullday = is_fullday_event(startdatetime, enddatetime)
     delta = enddatetime - startdatetime
     return fullday and delta.days > 1
 
 
 def is_fullday_event(startdatetime, enddatetime):
+    """
+    Checks if an event is a full-day event by comparing start datetime and end datetime of the event
+    :param startdatetime: Start datetime of the event
+    :param enddatetime: End datetime of the event
+    :return: [bool] True if full-day
+    """
     return (
         startdatetime.hour == 0
         and startdatetime.minute == 0
@@ -36,6 +62,13 @@ class NextcloudCalendar(MycroftSkill):
         self.caldav_interface = None
 
     def initialize(self):
+        """
+        Checks if the credentials (url, username and password) are set on Mycroft website.
+        If not, a corresponding dialog is output.
+        If the credentials are present, a CalDavInterface instance
+        is created
+        :return: [bool] False if credentials are not set
+        """
         username = self.settings.get('username')
         password = self.settings.get('password')
         url = self.settings.get('url')
@@ -58,6 +91,10 @@ class NextcloudCalendar(MycroftSkill):
 
     @intent_file_handler('get.next.appointment.intent')
     def handle_get_next_appointment(self, message):
+        """
+
+        :param message:
+        """
         next_event = self.caldav_interface.get_next_event()
         data = {}
         dialog_filename = "next.appointment"
@@ -77,7 +114,8 @@ class NextcloudCalendar(MycroftSkill):
             if title is not None:
                 data["title"] = title
 
-        # because we are using Python v3.7.3 the order of the keys of the dictionary is the the same as inserted,
+        # because we are using Python v3.7.3
+        # the order of the keys of the dictionary is the the same as inserted,
         # so we can iterate over the keys to generate the correct dialog filenames
         for key in data.keys():
             dialog_filename += "." + key
@@ -85,4 +123,8 @@ class NextcloudCalendar(MycroftSkill):
 
 
 def create_skill():
+    """
+
+    :return:
+    """
     return NextcloudCalendar()
