@@ -6,9 +6,9 @@ handler gets the relevant calendar information for
 the specific intent and chooses a suitable response
 from the dialog files.
 """
-from mycroft import MycroftSkill, intent_file_handler
-from .CalDavInterface import *
 import calendar
+from mycroft import MycroftSkill, intent_file_handler
+from .cal_dav_interface import CalDavInterface
 
 
 def format_datetime_for_output(date_time):
@@ -57,6 +57,13 @@ def is_fullday_event(startdatetime, enddatetime):
 
 
 class NextcloudCalendar(MycroftSkill):
+    """
+    The class contains intent handlers
+    for intent files in directory locale/en-us. Each intent
+    handler gets the relevant calendar information for
+    the specific intent and chooses a suitable response
+    from the dialog files.
+    """
     def __init__(self):
         MycroftSkill.__init__(self)
         self.caldav_interface = None
@@ -88,13 +95,16 @@ class NextcloudCalendar(MycroftSkill):
             self.settings.get('username'),
             self.settings.get('password')
         )
+        return True
 
     @intent_file_handler('get.next.appointment.intent')
     def handle_get_next_appointment(self, message):
         """
-
-        :param message:
+        Generates the respond for the intent asking for the next appointment
+        in the connected Nextcloud calendar.
+        :param message: The speech input message. Unused in this method
         """
+        del message  # unused by handler
         next_event = self.caldav_interface.get_next_event()
         data = {}
         dialog_filename = "next.appointment"
@@ -103,7 +113,7 @@ class NextcloudCalendar(MycroftSkill):
             startdate_time = next_event["starttime"]
             enddate_time = next_event["endtime"]
             startdate_formatted, starttime_formatted = format_datetime_for_output(startdate_time)
-            enddate_formatted, endtime_formatted = format_datetime_for_output(enddate_time)
+            enddate_formatted, _ = format_datetime_for_output(enddate_time)
             data["startdate"] = startdate_formatted
             if is_multiple_fulldays_event(startdate_time, enddate_time):
                 data["enddate"] = enddate_formatted
@@ -117,7 +127,7 @@ class NextcloudCalendar(MycroftSkill):
         # because we are using Python v3.7.3
         # the order of the keys of the dictionary is the the same as inserted,
         # so we can iterate over the keys to generate the correct dialog filenames
-        for key in data.keys():
+        for key in data:
             dialog_filename += "." + key
         self.speak_dialog(dialog_filename, data)
 
