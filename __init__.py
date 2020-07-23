@@ -7,7 +7,7 @@ the specific intent and chooses a suitable response
 from the dialog files.
 """
 import calendar
-from mycroft import MycroftSkill, intent_file_handler
+from mycroft import MycroftSkill, intent_handler
 from .cal_dav_interface import CalDavInterface
 
 
@@ -97,7 +97,7 @@ class NextcloudCalendar(MycroftSkill):
         )
         return True
 
-    @intent_file_handler('get.next.appointment.intent')
+    @intent_handler('get.next.appointment.intent')
     def handle_get_next_appointment(self, message):
         """
         Generates the respond for the intent asking for the next appointment
