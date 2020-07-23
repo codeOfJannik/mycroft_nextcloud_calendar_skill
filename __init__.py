@@ -7,8 +7,11 @@ the specific intent and chooses a suitable response
 from the dialog files.
 """
 import calendar
-from mycroft import MycroftSkill, intent_file_handler
+from  datetime import datetime
+from adapt.intent import IntentBuilder
+from mycroft import MycroftSkill, intent_handler
 from mycroft.skills.context import adds_context, removes_context
+from mycroft.util.parse import extract_datetime
 from .cal_dav_interface import CalDavInterface
 
 
@@ -98,7 +101,7 @@ class NextcloudCalendar(MycroftSkill):
         )
         return True
 
-    @intent_file_handler('get.next.appointment.intent')
+    @intent_handler('get.next.appointment.intent')
     def handle_get_next_appointment(self, message):
         """
         Generates the respond for the intent asking for the next appointment
@@ -132,19 +135,35 @@ class NextcloudCalendar(MycroftSkill):
             dialog_filename += "." + key
         self.speak_dialog(dialog_filename, data)
 
-    @intent_file_handler('get.appointment.date.intent')
-    @adds_context('ListDateEventsContext')
+    @intent_handler('get.appointment.date.intent')
     def handle_get_appointment_date(self, message):
         """
 
         :param message:
         :return:
         """
-        data = {}
-        dialog_filename = "requested.time"
-        message.data.get('date')
+        date = extract_datetime(message, datetime.today())
+        requested_date, requested_time = format_datetime_for_output(date)
+        events = self.caldav_interface.get_events_for_date(date)
+        if len(events) == 0:
+            self.speak_dialog("no.events.on.date", {"date": requested_date})
+        else:
+            self.speak_dialog("number.events.on.date", {"date": requested_date, "number": len(events)})
+            if self.ask_yesno("list.events.of.date", {"date": requested_date}) == "yes":
+                self.speak_dialog("events.on.date", {"date": requested_date})
+                for event in events:
+                    title = event["title"]
+                    startdate_time = event["starttime"]
+                    enddate_time = event["endtime"]
+                    _, starttime_formatted = format_datetime_for_output(startdate_time)
+                    _, endtime_formatted = format_datetime_for_output(enddate_time)
 
-
+                    self.speak_dialog(
+                        "event.details",
+                        {"title": title,
+                         "starttime": starttime_formatted,
+                         "endtime": endtime_formatted}
+                    )
 
 
 def create_skill():
