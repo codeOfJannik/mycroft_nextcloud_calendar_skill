@@ -10,6 +10,7 @@ import calendar
 from  datetime import datetime
 from adapt.intent import IntentBuilder
 from mycroft import MycroftSkill, intent_handler
+from mycroft.util import LOG
 from mycroft.skills.context import adds_context, removes_context
 from mycroft.util.parse import extract_datetime
 from .cal_dav_interface import CalDavInterface
@@ -142,6 +143,7 @@ class NextcloudCalendar(MycroftSkill):
         :param message:
         :return:
         """
+        LOG.debug(f"Intent message {message}")
         date = extract_datetime(message, datetime.today())
         requested_date, requested_time = format_datetime_for_output(date)
         events = self.caldav_interface.get_events_for_date(date)
