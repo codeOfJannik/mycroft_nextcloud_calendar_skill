@@ -58,7 +58,7 @@ möglich sein sollten. Basierend auf diesen Testfiles wurden anschließend die j
 und .intent Dateien angelegt, ebenfalls mit Vorüberlegungen auf welche Weise der Benutzer
 die Sätze jeweils anders formulieren könnte und dennoch eine Antwort erwartet.
 
-##Implementierung
+## Implementierung
 
 
 

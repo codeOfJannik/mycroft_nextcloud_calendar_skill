@@ -8,6 +8,7 @@ from the dialog files.
 """
 import calendar
 from mycroft import MycroftSkill, intent_file_handler
+from mycroft.skills.context import adds_context, removes_context
 from .cal_dav_interface import CalDavInterface
 
 
@@ -130,6 +131,20 @@ class NextcloudCalendar(MycroftSkill):
         for key in data:
             dialog_filename += "." + key
         self.speak_dialog(dialog_filename, data)
+
+    @intent_file_handler('get.appointment.date.intent')
+    @adds_context('ListDateEventsContext')
+    def handle_get_appointment_date(self, message):
+        """
+
+        :param message:
+        :return:
+        """
+        data = {}
+        dialog_filename = "requested.time"
+        message.data.get('date')
+
+
 
 
 def create_skill():
