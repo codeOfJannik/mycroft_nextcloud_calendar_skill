@@ -142,8 +142,8 @@ class NextcloudCalendar(MycroftSkill):
         :param message:
         :return:
         """
-        self.log.info(f"Intent message {message}")
-        date = extract_datetime(message, datetime.today())
+        self.log.info(f"Intent message {message.data['utterance']}")
+        date = extract_datetime(message.data['utterance'], datetime.today())
         requested_date, requested_time = format_datetime_for_output(date)
         events = self.caldav_interface.get_events_for_date(date)
         if len(events) == 0:
