@@ -1,1 +1,2 @@
 do i have an (appointment|event) (on|) {date}
+do i have {appointments|events) (on|) {date}

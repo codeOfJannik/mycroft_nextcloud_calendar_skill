@@ -7,11 +7,13 @@ the specific intent and chooses a suitable response
 from the dialog files.
 """
 import calendar
-from  datetime import datetime
-from adapt.intent import IntentBuilder
+from datetime import datetime
+
 from mycroft import MycroftSkill, intent_handler
-from mycroft.skills.context import adds_context, removes_context
 from mycroft.util.parse import extract_datetime
+from mycroft.util.format import nice_time, nice_date
+from mycroft.util.time import default_timezone
+
 from .cal_dav_interface import CalDavInterface
 
 
@@ -51,12 +53,12 @@ def is_fullday_event(startdatetime, enddatetime):
     :return: [bool] True if full-day
     """
     return (
-        startdatetime.hour == 0
-        and startdatetime.minute == 0
-        and startdatetime.second == 0
-        and enddatetime.hour == 0
-        and enddatetime.minute == 0
-        and enddatetime.second == 0
+            startdatetime.hour == 0
+            and startdatetime.minute == 0
+            and startdatetime.second == 0
+            and enddatetime.hour == 0
+            and enddatetime.minute == 0
+            and enddatetime.second == 0
     )
 
 
@@ -68,6 +70,7 @@ class NextcloudCalendar(MycroftSkill):
     the specific intent and chooses a suitable response
     from the dialog files.
     """
+
     def __init__(self):
         MycroftSkill.__init__(self)
         self.caldav_interface = None
@@ -97,7 +100,8 @@ class NextcloudCalendar(MycroftSkill):
         self.caldav_interface = CalDavInterface(
             self.settings.get('url'),
             self.settings.get('username'),
-            self.settings.get('password')
+            self.settings.get('password'),
+            default_timezone()
         )
         return True
 
@@ -145,26 +149,24 @@ class NextcloudCalendar(MycroftSkill):
         self.log.info(f"Intent message: {message.data['utterance']}")
         extracted = extract_datetime(message.data['utterance'], datetime.today())
         self.log.debug(f"Extracted date(s): {extracted}")
-        requested_date, requested_time = format_datetime_for_output(extracted[0])
         events = self.caldav_interface.get_events_for_date(extracted[0])
+        self.log.debug(f"Events on {extracted[0]}: {events}")
+
         if len(events) == 0:
-            self.speak_dialog("no.events.on.date", {"date": requested_date})
+            self.speak_dialog("no.events.on.date", {"date": nice_date(extracted[0])})
         else:
-            self.speak_dialog("number.events.on.date", {"date": requested_date, "number": len(events)})
-            if self.ask_yesno("list.events.of.date", {"date": requested_date}) == "yes":
-                self.speak_dialog("events.on.date", {"date": requested_date})
+            self.speak_dialog("number.events.on.date", {"date": nice_date(extracted[0]), "number_of_appointments": len(events)})
+            if self.ask_yesno("list.events.of.date", {"date": nice_date(extracted[0])}) == "yes":
+                self.speak_dialog("events.on.date", {"date": nice_date(extracted[0])})
                 for event in events:
                     title = event["title"]
                     startdate_time = event["starttime"]
                     enddate_time = event["endtime"]
-                    _, starttime_formatted = format_datetime_for_output(startdate_time)
-                    _, endtime_formatted = format_datetime_for_output(enddate_time)
-
                     self.speak_dialog(
                         "event.details",
                         {"title": title,
-                         "starttime": starttime_formatted,
-                         "endtime": endtime_formatted}
+                         "starttime": nice_time(startdate_time),
+                         "endtime": nice_time(enddate_time)}
                     )
 
 
