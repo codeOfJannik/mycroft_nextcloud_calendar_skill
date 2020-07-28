@@ -10,8 +10,8 @@ import calendar
 from datetime import datetime
 
 from mycroft import MycroftSkill, intent_handler
-from mycroft.util.parse import extract_datetime
 from mycroft.util.format import nice_time, nice_date
+from mycroft.util.parse import extract_datetime
 from mycroft.util.time import default_timezone
 
 from .cal_dav_interface import CalDavInterface
@@ -53,12 +53,12 @@ def is_fullday_event(startdatetime, enddatetime):
     :return: [bool] True if full-day
     """
     return (
-            startdatetime.hour == 0
-            and startdatetime.minute == 0
-            and startdatetime.second == 0
-            and enddatetime.hour == 0
-            and enddatetime.minute == 0
-            and enddatetime.second == 0
+        startdatetime.hour == 0 and
+        startdatetime.minute == 0 and
+        startdatetime.second == 0 and
+        enddatetime.hour == 0 and
+        enddatetime.minute == 0 and
+        enddatetime.second == 0
     )
 
 
@@ -90,10 +90,10 @@ class NextcloudCalendar(MycroftSkill):
         if not username:
             self.speak_dialog('err.nextcloud.settings.missing')
             return False
-        elif not password:
+        if not password:
             self.speak_dialog('err.nextcloud.settings.missing')
             return False
-        elif not url:
+        if not url:
             self.speak_dialog('err.nextcloud.settings.missing')
             return False
 
@@ -103,6 +103,7 @@ class NextcloudCalendar(MycroftSkill):
             self.settings.get('password'),
             default_timezone()
         )
+        self.log.info(f"Initialized CaldDavInterface with timezone {default_timezone()}")
         return True
 
     @intent_handler('get.next.appointment.intent')
@@ -132,7 +133,7 @@ class NextcloudCalendar(MycroftSkill):
             if title is not None:
                 data["title"] = title
 
-        # because we are using Python v3.7.3
+        # because we are using Python v3.7.x
         # the order of the keys of the dictionary is the the same as inserted,
         # so we can iterate over the keys to generate the correct dialog filenames
         for key in data:
@@ -142,37 +143,61 @@ class NextcloudCalendar(MycroftSkill):
     @intent_handler('get.appointment.date.intent')
     def handle_get_appointment_date(self, message):
         """
-
-        :param message:
-        :return:
+        Handles the intent asking for events on a specific date.
+        Checks the calendar on the specified date first,
+        then responses with the number of planned events.
+        If it's not 0, the user is asked if the events
+        should be listed. IF the user responds with 'yes'
+        all events are listed with title, start and end time.
+        :param message: The speech input message. Used to extract the specified date
         """
         self.log.info(f"Intent message: {message.data['utterance']}")
-        extracted = extract_datetime(message.data['utterance'], datetime.today())
-        self.log.debug(f"Extracted date(s): {extracted}")
-        events = self.caldav_interface.get_events_for_date(extracted[0])
-        self.log.debug(f"Events on {extracted[0]}: {events}")
+        extracted_date = extract_datetime(message.data['utterance'], datetime.today())[0]
+        self.log.debug(f"Extracted date(s): {extracted_date}")
+        events = self.caldav_interface.get_events_for_date(extracted_date)
+        self.log.debug(f"Events on {extracted_date}: {events}")
 
         if len(events) == 0:
-            self.speak_dialog("no.events.on.date", {"date": nice_date(extracted[0])})
+            self.speak_dialog(
+                "no.events.on.date",
+                {"date": nice_date(extracted_date, now=datetime.today())}
+            )
         else:
-            self.speak_dialog("number.events.on.date", {"date": nice_date(extracted[0]), "number_of_appointments": len(events)})
-            if self.ask_yesno("list.events.of.date", {"date": nice_date(extracted[0])}) == "yes":
-                self.speak_dialog("events.on.date", {"date": nice_date(extracted[0])})
+            self.speak_dialog(
+                "number.events.on.date",
+                {
+                    "date": nice_date(extracted_date, now=datetime.today()),
+                    "number_of_appointments": len(events),
+                    "plural": "s" if len(events) > 1 else ""
+                }
+            )
+            list_events = self.ask_yesno(
+                "list.events.of.date",
+                {"date": nice_date(extracted_date, now=datetime.today())}
+            )
+            if list_events == "yes":
+                self.speak_dialog(
+                    "events.on.date",
+                    {"date": nice_date(extracted_date, now=datetime.today())}
+                )
                 for event in events:
                     title = event["title"]
                     startdate_time = event["starttime"]
                     enddate_time = event["endtime"]
+
                     self.speak_dialog(
                         "event.details",
-                        {"title": title,
-                         "starttime": nice_time(startdate_time),
-                         "endtime": nice_time(enddate_time)}
+                        {
+                            "title": title,
+                            "starttime": nice_time(startdate_time, use_ampm=True),
+                            "endtime": nice_time(enddate_time, use_ampm=True)
+                        }
                     )
 
 
 def create_skill():
     """
-
-    :return:
+    Creates an instance of the skill class. Required from MycroftAI
+    :return: instance of skill class
     """
     return NextcloudCalendar()
