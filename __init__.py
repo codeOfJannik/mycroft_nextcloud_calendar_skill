@@ -53,12 +53,12 @@ def is_fullday_event(startdatetime, enddatetime):
     :return: [bool] True if full-day
     """
     return (
-        startdatetime.hour == 0 and
-        startdatetime.minute == 0 and
-        startdatetime.second == 0 and
-        enddatetime.hour == 0 and
-        enddatetime.minute == 0 and
-        enddatetime.second == 0
+            startdatetime.hour == 0 and
+            startdatetime.minute == 0 and
+            startdatetime.second == 0 and
+            enddatetime.hour == 0 and
+            enddatetime.minute == 0 and
+            enddatetime.second == 0
     )
 
 
@@ -193,6 +193,68 @@ class NextcloudCalendar(MycroftSkill):
                             "endtime": nice_time(enddate_time, use_ampm=True)
                         }
                     )
+
+    @intent_handler('delete.event.intent')
+    def handle_delete_event(self, message):
+        title = None
+        date = None
+        if "title" in message.data:
+            title = message.data["title"]
+        if "date" in message.data:
+            extracted = extract_datetime(message.data['utterance'], datetime.today())
+            if extracted is not None:
+                date = extracted[0]
+
+        self.log.info(f"Received delete intent with {title} and {date}")
+        if title is None and date is None:
+            title = self.get_response("ask.for.title", {"action": "delete"})
+        if date is not None:
+            events_on_date = self.caldav_interface.get_events_for_date(date)
+            if len(events_on_date) == 0:
+                self.speak_dialog("no.events.events.on.date", {"date": nice_date(date)})
+            if len(events_on_date) == 1:
+                return self.delete_event_on_confirmation(events_on_date[0])
+            if len(events_on_date) > 1 and title is None:
+                title_of_events = [event["title"] for event in events_on_date]
+                self.speak_dialog("multiple.matching.events", {"detail": "date"})
+                title = self.ask_selection(title_of_events, "event.selection.delete", None, 0.7)
+            event = next((event for event in events_on_date if event["title"] == title), None)
+            return self.delete_event_on_confirmation(event)
+
+        if title is not None:
+            events_matching_title = self.caldav_interface.get_events_with_title(title)
+            if len(events_matching_title) == 0:
+                self.speak_dialog("no.matching.event")
+                return
+            if len(events_matching_title) == 1:
+                return self.delete_event_on_confirmation(events_matching_title[0])
+            if len(events_matching_title) > 1:
+                selection = [f"{event['title']} for {nice_date(event['starttime'])} at {nice_time(event['starttime'])}" for
+                             event in events_matching_title]
+                self.speak_dialog("multiple.matching.events", {"detail": "title"})
+                selected_event_details = self.ask_selection(selection, "event.selection.delete", None, 0.5)
+                if selected_event_details is not None:
+                    event = events_matching_title[selection.index(selected_event_details)]
+                    return self.delete_event_on_confirmation(event)
+                else:
+                    self.speak_dialog("no.event.deleted")
+                    return
+
+    def delete_event_on_confirmation(self, event):
+        confirm = self.ask_yesno(
+            'confirm.delete.event',
+            {"title": event["title"], "date": nice_date(event["starttime"])}
+        )
+        if confirm == "yes":
+            self.caldav_interface.delete_event(event)
+            self.speak_dialog(
+                "successful.delete.event",
+                {"title": event["title"], "date": nice_date(event["starttime"])}
+            )
+            return
+        else:
+            self.speak_dialog("no.event.deleted")
+            return
 
 
 def create_skill():
