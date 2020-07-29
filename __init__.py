@@ -53,12 +53,12 @@ def is_fullday_event(startdatetime, enddatetime):
     :return: [bool] True if full-day
     """
     return (
-            startdatetime.hour == 0 and
-            startdatetime.minute == 0 and
-            startdatetime.second == 0 and
-            enddatetime.hour == 0 and
-            enddatetime.minute == 0 and
-            enddatetime.second == 0
+        startdatetime.hour == 0 and
+        startdatetime.minute == 0 and
+        startdatetime.second == 0 and
+        enddatetime.hour == 0 and
+        enddatetime.minute == 0 and
+        enddatetime.second == 0
     )
 
 
@@ -83,6 +83,7 @@ class NextcloudCalendar(MycroftSkill):
         is created
         :return: [bool] False if credentials are not set
         """
+        # TODO: check if get_intro_message() is suitable for our purpose
         username = self.settings.get('username')
         password = self.settings.get('password')
         url = self.settings.get('url')
@@ -115,30 +116,29 @@ class NextcloudCalendar(MycroftSkill):
         """
         del message  # unused by handler
         next_event = self.caldav_interface.get_next_event()
-        data = {}
+        output_data = {}
         dialog_filename = "next.appointment"
+
         if next_event is not None:
             title = next_event["title"]
             startdate_time = next_event["starttime"]
             enddate_time = next_event["endtime"]
-            startdate_formatted, starttime_formatted = format_datetime_for_output(startdate_time)
-            enddate_formatted, _ = format_datetime_for_output(enddate_time)
-            data["startdate"] = startdate_formatted
+            output_data["startdate"] = nice_date(startdate_time)
             if is_multiple_fulldays_event(startdate_time, enddate_time):
-                data["enddate"] = enddate_formatted
+                output_data["enddate"] = nice_date(enddate_time)
             else:
                 if not is_fullday_event(startdate_time, enddate_time):
-                    data["time"] = starttime_formatted
+                    output_data["time"] = nice_time(startdate_time)
 
             if title is not None:
-                data["title"] = title
+                output_data["title"] = title
 
         # because we are using Python v3.7.x
         # the order of the keys of the dictionary is the the same as inserted,
         # so we can iterate over the keys to generate the correct dialog filenames
-        for key in data:
+        for key in output_data:
             dialog_filename += "." + key
-        self.speak_dialog(dialog_filename, data)
+        self.speak_dialog(dialog_filename, output_data)
 
     @intent_handler('get.appointment.date.intent')
     def handle_get_appointment_date(self, message):
@@ -147,7 +147,7 @@ class NextcloudCalendar(MycroftSkill):
         Checks the calendar on the specified date first,
         then responses with the number of planned events.
         If it's not 0, the user is asked if the events
-        should be listed. IF the user responds with 'yes'
+        should be listed. If the user responds with 'yes'
         all events are listed with title, start and end time.
         :param message: The speech input message. Used to extract the specified date
         """
@@ -196,6 +196,17 @@ class NextcloudCalendar(MycroftSkill):
 
     @intent_handler('delete.event.intent')
     def handle_delete_event(self, message):
+        """
+        Handles the intent for deletion of an event. To delete the correct event
+        the this steps are followed:
+        1. Check if a title or date of the event to delete is specified
+        2. If information are missing or the given information match to multiple
+        events the user is asked for more information to select a unique event that
+        should be deleted.
+        3. The user is asked for confirmation before a event is deleted finally
+        :param message: the intent message
+        :return none
+        """
         title = None
         date = None
         if "title" in message.data:
@@ -209,38 +220,72 @@ class NextcloudCalendar(MycroftSkill):
         if title is None and date is None:
             title = self.get_response("ask.for.title", {"action": "delete"})
         if date is not None:
-            events_on_date = self.caldav_interface.get_events_for_date(date)
-            if len(events_on_date) == 0:
-                self.speak_dialog("no.events.events.on.date", {"date": nice_date(date)})
-            if len(events_on_date) == 1:
-                return self.delete_event_on_confirmation(events_on_date[0])
-            if len(events_on_date) > 1 and title is None:
-                title_of_events = [event["title"] for event in events_on_date]
-                self.speak_dialog("multiple.matching.events", {"detail": "date"})
-                title = self.ask_selection(title_of_events, "event.selection.delete", None, 0.7)
-            event = next((event for event in events_on_date if event["title"] == title), None)
-            return self.delete_event_on_confirmation(event)
-
+            self.delete_date_not_none(title, date)
+            return
         if title is not None:
-            events_matching_title = self.caldav_interface.get_events_with_title(title)
-            if len(events_matching_title) == 0:
-                self.speak_dialog("no.matching.event")
+            self.delete_title_not_none(title)
+
+    def delete_title_not_none(self, title):
+        """
+        If just the title of an event that should be deleted is given this
+        method is used to handle the selection of the correct event if there are
+        multiple events containing the defined title string. When the event is
+        found the user is asked for confirmation and the event is deleted.
+        :param title: string that the event title needs to contain
+        :return: None
+        """
+        events_matching_title = self.caldav_interface.get_events_with_title(title)
+        if len(events_matching_title) == 0:
+            self.speak_dialog("no.matching.event")
+            return
+        if len(events_matching_title) == 1:
+            self.delete_event_on_confirmation(events_matching_title[0])
+            return
+        if len(events_matching_title) > 1:
+            selection = [f"{event['title']} " +
+                         f"for {nice_date(event['starttime'])} " +
+                         f"at {nice_time(event['starttime'])}"
+                         for event in events_matching_title]
+            self.speak_dialog("multiple.matching.events", {"detail": "title"})
+            selected_event_details = self.ask_selection(
+                selection, "event.selection.delete", None, 0.5
+            )
+            if selected_event_details is not None:
+                event = events_matching_title[selection.index(selected_event_details)]
+                self.delete_event_on_confirmation(event)
                 return
-            if len(events_matching_title) == 1:
-                return self.delete_event_on_confirmation(events_matching_title[0])
-            if len(events_matching_title) > 1:
-                selection = [f"{event['title']} for {nice_date(event['starttime'])} at {nice_time(event['starttime'])}" for
-                             event in events_matching_title]
-                self.speak_dialog("multiple.matching.events", {"detail": "title"})
-                selected_event_details = self.ask_selection(selection, "event.selection.delete", None, 0.5)
-                if selected_event_details is not None:
-                    event = events_matching_title[selection.index(selected_event_details)]
-                    return self.delete_event_on_confirmation(event)
-                else:
-                    self.speak_dialog("no.event.deleted")
-                    return
+            self.speak_dialog("no.event.deleted")
+
+    def delete_date_not_none(self, title, date):
+        """
+        If the date of an event that should be deleted is given this
+        method is used to handle the selection of the correct event if there are
+        multiple events for that date. When the event is
+        found the user is asked for confirmation and the event is deleted.
+        :param title: string that the event title needs to contain
+        :param date: datetime of the event that should be deleted
+        :return: None
+        """
+        events_on_date = self.caldav_interface.get_events_for_date(date)
+        if len(events_on_date) == 0:
+            self.speak_dialog("no.events.events.on.date", {"date": nice_date(date)})
+        if len(events_on_date) == 1:
+            self.delete_event_on_confirmation(events_on_date[0])
+            return
+        if len(events_on_date) > 1 and title is None:
+            title_of_events = [event["title"] for event in events_on_date]
+            self.speak_dialog("multiple.matching.events", {"detail": "date"})
+            title = self.ask_selection(title_of_events, "event.selection.delete", None, 0.7)
+        event = next((event for event in events_on_date if event["title"] == title), None)
+        self.delete_event_on_confirmation(event)
 
     def delete_event_on_confirmation(self, event):
+        """
+        Asks the user for confirmation before a event is deleted. If user confirms the
+        event is deleted from the Nextcloud calendar.
+        :param event: dictionary with the details of the event
+        :return: none
+        """
         confirm = self.ask_yesno(
             'confirm.delete.event',
             {"title": event["title"], "date": nice_date(event["starttime"])}
@@ -252,9 +297,7 @@ class NextcloudCalendar(MycroftSkill):
                 {"title": event["title"], "date": nice_date(event["starttime"])}
             )
             return
-        else:
-            self.speak_dialog("no.event.deleted")
-            return
+        self.speak_dialog("no.event.deleted")
 
 
 def create_skill():
