@@ -6,7 +6,6 @@ handler gets the relevant calendar information for
 the specific intent and chooses a suitable response
 from the dialog files.
 """
-import calendar
 from datetime import datetime
 
 from mycroft import MycroftSkill, intent_handler
@@ -15,21 +14,6 @@ from mycroft.util.parse import extract_datetime
 from mycroft.util.time import default_timezone
 
 from .cal_dav_interface import CalDavInterface
-
-
-def format_datetime_for_output(date_time):
-    """
-    Formats a datetime object to string objects for date and time, that can be used in speech output
-    :param date_time: datetime object that should be formatted
-    :return: a string for the date and the time each
-    """
-    date_formatted = "{month} {day}, {year}".format(
-        month=calendar.month_name[date_time.month],
-        day=date_time.day,
-        year=date_time.year
-    )
-    time_formatted = date_time.strftime("%I:%M %p")
-    return date_formatted, time_formatted
 
 
 def is_multiple_fulldays_event(startdatetime, enddatetime):
