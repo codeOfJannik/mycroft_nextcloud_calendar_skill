@@ -1,0 +1,3 @@
+rename (the|my|) (appointment|event) (entitled|) {title}
+rename (an|the|my) (appointment|event) (on|for|) {date}
+rename an (appointment|event)

@@ -1,4 +1,3 @@
-delete (the|) (appointment|event) {title}
-delete (the|) (appointment|event) entitled {title}
-delete (an|the) (appointment|event) (on|) {date}
+delete (the|my|) (appointment|event) (entitled|) {title}
+delete (an|the|my) (appointment|event) (on|for|) {date}
 delete an (appointment|event)

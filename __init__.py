@@ -46,6 +46,18 @@ def is_fullday_event(startdatetime, enddatetime):
     )
 
 
+def get_title_date_from_message(message):
+    title = None
+    date = None
+    if "title" in message.data:
+        title = message.data["title"]
+    if "date" in message.data:
+        extracted = extract_datetime(message.data['utterance'], datetime.today())
+        if extracted is not None:
+            date = extracted[0]
+    return title, date
+
+
 class NextcloudCalendar(MycroftSkill):
     """
     The class contains intent handlers
@@ -191,25 +203,33 @@ class NextcloudCalendar(MycroftSkill):
         :param message: the intent message
         :return none
         """
-        title = None
-        date = None
-        if "title" in message.data:
-            title = message.data["title"]
-        if "date" in message.data:
-            extracted = extract_datetime(message.data['utterance'], datetime.today())
-            if extracted is not None:
-                date = extracted[0]
+        event = self.select_event_for_altering(message)
+        self.delete_event_on_confirmation(event)
 
-        self.log.info(f"Received delete intent with {title} and {date}")
+    @intent_handler("rename.event.intent")
+    def handle_rename_event(self, message):
+        """
+
+        :param message:
+        :return:
+        """
+        event = self.select_event_for_altering(message)
+        self.rename_event(event)
+
+    def select_event_for_altering(self, message):
+        event = None
+        title, date = get_title_date_from_message(message)
+
+        self.log.info(f"Received altering intent with {title} and {date}")
         if title is None and date is None:
             title = self.get_response("ask.for.title", {"action": "delete"})
         if date is not None:
-            self.delete_date_not_none(date)
-            return
+            event = self.select_event_date_not_none(date)
         if title is not None:
-            self.delete_title_not_none(title)
+            event = self.select_event_title_not_none(title)
+        return event
 
-    def delete_title_not_none(self, title):
+    def select_event_title_not_none(self, title):
         """
         If just the title of an event that should be deleted is given this
         method is used to handle the selection of the correct event if there are
@@ -221,10 +241,8 @@ class NextcloudCalendar(MycroftSkill):
         events_matching_title = self.caldav_interface.get_events_with_title(title)
         if len(events_matching_title) == 0:
             self.speak_dialog("no.matching.event")
-            return
         if len(events_matching_title) == 1:
-            self.delete_event_on_confirmation(events_matching_title[0])
-            return
+            return events_matching_title[0]
         if len(events_matching_title) > 1:
             selection = [f"{event['title']} " +
                          f"for {nice_date(event['starttime'])} " +
@@ -236,33 +254,29 @@ class NextcloudCalendar(MycroftSkill):
             )
             if selected_event_details is not None:
                 event = events_matching_title[selection.index(selected_event_details)]
-                self.delete_event_on_confirmation(event)
-                return
-            self.speak_dialog("no.event.deleted")
+                return event
+            self.speak_dialog("no.event.changed", {"action": "deleted"})
 
-    def delete_date_not_none(self, date):
+    def select_event_date_not_none(self, date):
         """
         If the date of an event that should be deleted is given this
         method is used to handle the selection of the correct event if there are
         multiple events for that date. When the event is
         found the user is asked for confirmation and the event is deleted.
-        :param title: string that the event title needs to contain
         :param date: datetime of the event that should be deleted
         :return: None
         """
         events_on_date = self.caldav_interface.get_events_for_date(date)
         if len(events_on_date) == 0:
             self.speak_dialog("no.events.events.on.date", {"date": nice_date(date)})
-            return
         if len(events_on_date) == 1:
-            self.delete_event_on_confirmation(events_on_date[0])
-            return
+            return events_on_date[0]
         if len(events_on_date) > 1:
             title_of_events = [event["title"] for event in events_on_date]
             self.speak_dialog("multiple.matching.events", {"detail": "date"})
             title = self.ask_selection(title_of_events, "event.selection.delete", None, 0.7)
             event = next((event for event in events_on_date if event["title"] == title), None)
-            self.delete_event_on_confirmation(event)
+            return event
 
     def delete_event_on_confirmation(self, event):
         """
@@ -271,18 +285,33 @@ class NextcloudCalendar(MycroftSkill):
         :param event: dictionary with the details of the event
         :return: none
         """
-        confirm = self.ask_yesno(
-            'confirm.delete.event',
-            {"title": event["title"], "date": nice_date(event["starttime"])}
-        )
-        if confirm == "yes":
-            self.caldav_interface.delete_event(event)
-            self.speak_dialog(
-                "successful.delete.event",
+        if event is not None:
+            confirm = self.ask_yesno(
+                'confirm.delete.event',
                 {"title": event["title"], "date": nice_date(event["starttime"])}
             )
-            return
-        self.speak_dialog("no.event.deleted")
+            if confirm == "yes":
+                self.caldav_interface.delete_event(event)
+                self.speak_dialog(
+                    "successful.delete.event",
+                    {"title": event["title"], "date": nice_date(event["starttime"])}
+                )
+                return
+        self.speak_dialog("no.event.changed", {"action": "deleted"})
+
+    def rename_event(self, event):
+        """
+
+        :param event:
+        :return:
+        """
+        if event is not None:
+            new_title = self.get_response("rename.desired.title", {"title": event['title']})
+            if new_title is not None:
+                self.caldav_interface.rename_event(event, new_title)
+                self.speak_dialog("successful.rename.event", {"new_title": new_title})
+                return
+        self.speak_dialog("no.event.changed", {"action": "renamed"})
 
 
 def create_skill():

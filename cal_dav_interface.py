@@ -134,3 +134,8 @@ class CalDavInterface:
         """
         caldav_event = self.calendar.event_by_url(event["event_url"])
         caldav_event.delete()
+
+    def rename_event(self, event, new_title):
+        caldav_event = self.calendar.event_by_url(event["event_url"])
+        caldav_event.vobject_instance.vevent.summary.value = new_title
+        caldav_event.save()
