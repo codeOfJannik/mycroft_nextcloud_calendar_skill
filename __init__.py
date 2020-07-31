@@ -204,7 +204,7 @@ class NextcloudCalendar(MycroftSkill):
         if title is None and date is None:
             title = self.get_response("ask.for.title", {"action": "delete"})
         if date is not None:
-            self.delete_date_not_none(title, date)
+            self.delete_date_not_none(date)
             return
         if title is not None:
             self.delete_title_not_none(title)
@@ -240,7 +240,7 @@ class NextcloudCalendar(MycroftSkill):
                 return
             self.speak_dialog("no.event.deleted")
 
-    def delete_date_not_none(self, title, date):
+    def delete_date_not_none(self, date):
         """
         If the date of an event that should be deleted is given this
         method is used to handle the selection of the correct event if there are
@@ -253,15 +253,16 @@ class NextcloudCalendar(MycroftSkill):
         events_on_date = self.caldav_interface.get_events_for_date(date)
         if len(events_on_date) == 0:
             self.speak_dialog("no.events.events.on.date", {"date": nice_date(date)})
+            return
         if len(events_on_date) == 1:
             self.delete_event_on_confirmation(events_on_date[0])
             return
-        if len(events_on_date) > 1 and title is None:
+        if len(events_on_date) > 1:
             title_of_events = [event["title"] for event in events_on_date]
             self.speak_dialog("multiple.matching.events", {"detail": "date"})
             title = self.ask_selection(title_of_events, "event.selection.delete", None, 0.7)
-        event = next((event for event in events_on_date if event["title"] == title), None)
-        self.delete_event_on_confirmation(event)
+            event = next((event for event in events_on_date if event["title"] == title), None)
+            self.delete_event_on_confirmation(event)
 
     def delete_event_on_confirmation(self, event):
         """
