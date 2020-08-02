@@ -74,9 +74,9 @@ class NextcloudCalendar(MycroftSkill):
     def initialize(self):
         """
         Checks if the credentials (url, username and password) are set on Mycroft website.
-        If not, a corresponding dialog is output.
+        If not, a corresponding dialog will be displayed.
         If the credentials are present, a CalDavInterface instance
-        is created
+        is created.
         :return: [bool] False if credentials are not set
         """
         # TODO: check if get_intro_message() is suitable for our purpose
@@ -106,9 +106,9 @@ class NextcloudCalendar(MycroftSkill):
     @intent_handler('get.next.appointment.intent')
     def handle_get_next_appointment(self, message):
         """
-        Generates the respond for the intent asking for the next appointment
+        Generates the response for the intent asking for the next appointment
         in the connected Nextcloud calendar.
-        :param message: The speech input message. Unused in this method
+        :param message: The speech input message. Unused in this method.
         """
         del message  # unused by handler
         next_event = self.caldav_interface.get_next_event()
@@ -194,12 +194,12 @@ class NextcloudCalendar(MycroftSkill):
     def handle_delete_event(self, message):
         """
         Handles the intent for deletion of an event. To delete the correct event
-        the this steps are followed:
-        1. Check if a title or date of the event to delete is specified
-        2. If information are missing or the given information match to multiple
+        this steps are followed:
+        1. Check if a title or date of the event, which is going to be deleted, is specified.
+        2. If information is missing or the given information matches to multiple
         events the user is asked for more information to select a unique event that
         should be deleted.
-        3. The user is asked for confirmation before a event is deleted finally
+        3. The user is asked for confirmation before an event is deleted finally
         :param message: the intent message
         :return none
         """
