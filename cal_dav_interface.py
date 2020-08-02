@@ -56,7 +56,8 @@ class CalDavInterface:
     def get_next_event(self):
         """
         Returns next event planned in the calendar.
-        :return: next event as python dictionary. If no next event planned None is returned
+        :return: next event as python dictionary. If there is no event planned in the future
+        "None" is returned
         """
         all_events = self.calendar.events()
         parsed_events = self.parse_ics_events(all_events)
@@ -72,7 +73,7 @@ class CalDavInterface:
     def get_events_with_title(self, title):
         """
         Get all events from the calendar, parse it to python dict representation
-        and filter into a list only events matching the given title.
+        and filter them into a list only events matching the given title.
         :param title: string that the event summary needs to contain
         :return: list of matching events in python dictionary representation
         """
@@ -84,7 +85,7 @@ class CalDavInterface:
 
     def get_event_details(self, event):
         """
-        Parses ical Strings for event to dictionary containing title, start time and end time
+        Parses ical strings for event to dictionary containing title, start time and end time
         :param event: ical string of event
         :return: dictionary representation of event
         """
