@@ -14,6 +14,7 @@ Hey Mycroft
 * "Delete my event entitled 'Speech Interaction'."
 * "Do I have an appointment on July, 24th, 2020?"
 * "Rename my appointment entitled 'Speech Interaction'."
+* "Create a new event."
 
 
 
