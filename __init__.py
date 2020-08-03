@@ -6,11 +6,13 @@ handler gets the relevant calendar information for
 the specific intent and chooses a suitable response
 from the dialog files.
 """
+import datetime as dt
 from datetime import datetime
+import re
 
 from mycroft import MycroftSkill, intent_handler
 from mycroft.util.format import nice_time, nice_date
-from mycroft.util.parse import extract_datetime
+from mycroft.util.parse import extract_datetime, extract_duration, extract_number
 from mycroft.util.time import default_timezone
 
 from .cal_dav_interface import CalDavInterface
@@ -37,12 +39,12 @@ def is_fullday_event(startdatetime, enddatetime):
     :return: [bool] True if full-day
     """
     return (
-        startdatetime.hour == 0 and
-        startdatetime.minute == 0 and
-        startdatetime.second == 0 and
-        enddatetime.hour == 0 and
-        enddatetime.minute == 0 and
-        enddatetime.second == 0
+            startdatetime.hour == 0 and
+            startdatetime.minute == 0 and
+            startdatetime.second == 0 and
+            enddatetime.hour == 0 and
+            enddatetime.minute == 0 and
+            enddatetime.second == 0
     )
 
 
@@ -70,6 +72,7 @@ class NextcloudCalendar(MycroftSkill):
     def __init__(self):
         MycroftSkill.__init__(self)
         self.caldav_interface = None
+        self.timezone = None
 
     def initialize(self):
         """
@@ -93,6 +96,8 @@ class NextcloudCalendar(MycroftSkill):
         if not url:
             self.speak_dialog('err.nextcloud.settings.missing')
             return False
+
+        self.timezone = default_timezone()
 
         self.caldav_interface = CalDavInterface(
             self.settings.get('url'),
@@ -148,7 +153,7 @@ class NextcloudCalendar(MycroftSkill):
         :param message: The speech input message. Used to extract the specified date
         """
         self.log.info(f"Intent message: {message.data['utterance']}")
-        extracted_date = extract_datetime(message.data['utterance'], datetime.today())[0]
+        extracted_date = extract_datetime(message.data['utterance'], datetime.now(self.timezone))[0]
         self.log.debug(f"Extracted date(s): {extracted_date}")
         events = self.caldav_interface.get_events_for_date(extracted_date)
         self.log.debug(f"Events on {extracted_date}: {events}")
@@ -156,25 +161,25 @@ class NextcloudCalendar(MycroftSkill):
         if len(events) == 0:
             self.speak_dialog(
                 "no.events.on.date",
-                {"date": nice_date(extracted_date, now=datetime.today())}
+                {"date": nice_date(extracted_date, now=datetime.now(self.timezone))}
             )
         else:
             self.speak_dialog(
                 "number.events.on.date",
                 {
-                    "date": nice_date(extracted_date, now=datetime.today()),
+                    "date": nice_date(extracted_date, now=datetime.now(self.timezone)),
                     "number_of_appointments": len(events),
                     "plural": "s" if len(events) > 1 else ""
                 }
             )
             list_events = self.ask_yesno(
                 "list.events.of.date",
-                {"date": nice_date(extracted_date, now=datetime.today())}
+                {"date": nice_date(extracted_date, now=datetime.now(self.timezone))}
             )
             if list_events == "yes":
                 self.speak_dialog(
                     "events.on.date",
-                    {"date": nice_date(extracted_date, now=datetime.today())}
+                    {"date": nice_date(extracted_date, now=datetime.now(self.timezone))}
                 )
                 for event in events:
                     title = event["title"]
@@ -215,6 +220,55 @@ class NextcloudCalendar(MycroftSkill):
         """
         event = self.select_event_for_altering(message)
         self.rename_event(event)
+
+    @intent_handler("create.event.intent")
+    def handle_create_event(self, message):
+        title, date = get_title_date_from_message(message)
+        fullday = False
+        while title is None:
+            title = self.get_response("ask.for.title", {"action": "create"})
+        self.log.info(f"set title of new event to: {title}")
+
+        if date is None:
+            date_response = self.get_response("ask.for.date")
+            date, rest = extract_datetime(date_response)
+        self.log.info(f"set date of new event to: {date}")
+
+        extracted = extract_datetime(title, datetime.now(self.timezone))
+        if extracted is not None:
+            date_in_title, rest = extracted
+            if date_in_title is not None:
+                self.log.info("Event title included date")
+                date_said = title.replace(rest, "")
+                title = title.replace(date_said, "")
+
+        if date.time() == dt.time(0):
+            time, rest = None, None
+            pattern = re.compile(r"full\s*day")
+            while time is None or time.time() == dt.time(0):
+                rest = self.get_response("new.event.starttime", {"event": title})
+                extracted = extract_datetime(rest)
+                if extracted is not None:
+                    time, rest = extracted
+                if re.search(pattern, rest):
+                    fullday = True
+                    break
+
+            if not fullday:
+                date = datetime.combine(date.date(), time.time())
+
+        duration = None
+        while duration is None:
+            if not fullday:
+                duration_utterance = self.get_response("ask.duration.new.event")
+                duration, rest = extract_duration(duration_utterance)
+            else:
+                duration_utterance = self.get_response("ask.fullday.duration")
+                duration = extract_number(duration_utterance)
+
+        self.log.info(f"New calendar event will be created. Title: {title}, Date: {str(date)}")
+
+        self.caldav_interface.create_new_event(title, date, duration, fullday)
 
     def select_event_for_altering(self, message):
         event = None

@@ -2,10 +2,13 @@
 The software class that handles connection to and requests from the Nextcloud calendar
 """
 from datetime import datetime
+import datetime as dt
 
 import caldav
 import icalendar
 import pytz
+import vobject
+import json
 
 Utc = pytz.UTC
 
@@ -126,6 +129,24 @@ class CalDavInterface:
                 event_details["event_url"] = url
                 parsed_events.append(event_details)
         return parsed_events
+
+    def create_new_event(self, title, date, duration, fullday):
+        cal = icalendar.Calendar()
+        event = icalendar.Event()
+        event.add("summary", title)
+
+        if fullday:
+            start = date.date()
+            end = (date + dt.timedelta(duration)).date()
+            date = start
+        else:
+            end = date + duration
+
+        event.add("dtstart", date)
+        event.add("dtend", end)
+
+        cal.add_component(event)
+        self.calendar.add_event(cal)
 
     def delete_event(self, event):
         """

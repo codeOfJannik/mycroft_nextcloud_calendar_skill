@@ -108,7 +108,3 @@ benötigten Dateien vorerst in einem separaten Branch ausgelagert.
 
 ## Learnings
 
-
-
-
-

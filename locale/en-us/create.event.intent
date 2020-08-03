@@ -1,0 +1,3 @@
+(create|plan|add) (an|a new) (appointment|event) (entitled|) {title}
+(create|plan|add) (an|a new) (appointment|event) (on|for) {date}
+(create|plan|add) (an|a new) (appointment|event)
