@@ -39,7 +39,7 @@ Folgender Link war hierfür sehr hilfreich: https://elinux.org/R-Pi_Troubleshoot
 ### 3. Output auswählen
  `amixer cset numid=X <n>` 
 
-(0 = auto, 1 = Kopfhörer, 2= HDM)
+0 = auto, 1 = Kopfhörer, 2= HDM)
 
 ### 4. Testen
 `speaker-test -t sine -f 440 -c 2 -s 1`
@@ -87,7 +87,7 @@ die Optionen erklärt:
     | number of appointments today |  
     | how many appointments do I have today |
 ``` 
-Im Scenario wird der allgemeine Testfall beschrieben. Da unsere Implementierung nur die englische Sprache unterstützt,
+Im Scenario wird der allgemein Testfall beschrieben. Da unsere Implementierung nur die englische Sprache unterstützt,
 ist immer ein englischsprachiger Benutzer gegeben. Der `When-Then` Test beschreibt, was passiert, wenn ein Nutzer eine gewisse
 Phrase verwendet, im obigen Beispiel soll also die Zahl der Events für den heutigen Tag ausgegeben werden, wenn der 
 Nutzer danach fragt.

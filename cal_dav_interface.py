@@ -7,8 +7,6 @@ import datetime as dt
 import caldav
 import icalendar
 import pytz
-import vobject
-import json
 
 Utc = pytz.UTC
 
@@ -131,6 +129,13 @@ class CalDavInterface:
         return parsed_events
 
     def create_new_event(self, title, date, duration, fullday):
+        """
+        Creates a new event in the Nextcloud calendar with the given details.
+        :param title: title used in summary of the new event
+        :param date: datetime used as dtstart of the event
+        :param duration: duration to calculate the dtend of the event
+        :param fullday: boolean that indicates if the event is a full-day event
+        """
         cal = icalendar.Calendar()
         event = icalendar.Event()
         event.add("summary", title)
@@ -158,6 +163,11 @@ class CalDavInterface:
         caldav_event.delete()
 
     def rename_event(self, event, new_title):
+        """
+        Changes the summary field of a given event to a new title.
+        :param event: the event in python dict representation
+        :param new_title: the desired new title of the event
+        """
         caldav_event = self.calendar.event_by_url(event["event_url"])
         caldav_event.vobject_instance.vevent.summary.value = new_title
         caldav_event.save()

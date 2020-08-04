@@ -39,16 +39,23 @@ def is_fullday_event(startdatetime, enddatetime):
     :return: [bool] True if full-day
     """
     return (
-            startdatetime.hour == 0 and
-            startdatetime.minute == 0 and
-            startdatetime.second == 0 and
-            enddatetime.hour == 0 and
-            enddatetime.minute == 0 and
-            enddatetime.second == 0
+        startdatetime.hour == 0 and
+        startdatetime.minute == 0 and
+        startdatetime.second == 0 and
+        enddatetime.hour == 0 and
+        enddatetime.minute == 0 and
+        enddatetime.second == 0
     )
 
 
 def get_title_date_from_message(message):
+    """
+    Receives the message object of an intent handler and checks
+    if it contains a title or date. If yes it is returned, else
+    None is returned
+    :param message: Message object of the intent handler
+    :return: (title, date) if exists, (None, None) otherwise
+    """
     title = None
     date = None
     if "title" in message.data:
@@ -214,15 +221,25 @@ class NextcloudCalendar(MycroftSkill):
     @intent_handler("rename.event.intent")
     def handle_rename_event(self, message):
         """
-
-        :param message:
-        :return:
+        Handles the intent for renaming an event. The correct event is selected
+        based on given title or date. The event summary is changed to the new defined
+        event title.
+        :param message: the intent message
+        :return: None
         """
         event = self.select_event_for_altering(message)
         self.rename_event(event)
 
     @intent_handler("create.event.intent")
     def handle_create_event(self, message):
+        """
+        Handler to create a new event in the calendar. It checked first
+        if a title or date is given in the intent message. Then the user is
+        asked for missing information as start time, duration or full-day event.
+        If all information are present the event is created using the CalDav interface.
+        :param message: the intent message
+        :return: None
+        """
         title, date = get_title_date_from_message(message)
         fullday = False
         while title is None:
@@ -271,6 +288,15 @@ class NextcloudCalendar(MycroftSkill):
         self.caldav_interface.create_new_event(title, date, duration, fullday)
 
     def select_event_for_altering(self, message):
+        """
+        Method that is used to select the correct event to
+        rename/delete based on title and date information
+        given in the intent message.
+        If necessary the user is asked for more information to
+        get the correct unique event.
+        :param message: the intent message
+        :return: the event that should be renamed/deleted as a python dict
+        """
         event = None
         title, date = get_title_date_from_message(message)
 
@@ -310,6 +336,7 @@ class NextcloudCalendar(MycroftSkill):
                 event = events_matching_title[selection.index(selected_event_details)]
                 return event
             self.speak_dialog("no.event.changed", {"action": "deleted"})
+        return None
 
     def select_event_date_not_none(self, date):
         """
@@ -331,13 +358,13 @@ class NextcloudCalendar(MycroftSkill):
             title = self.ask_selection(title_of_events, "event.selection.delete", None, 0.7)
             event = next((event for event in events_on_date if event["title"] == title), None)
             return event
+        return None
 
     def delete_event_on_confirmation(self, event):
         """
         Asks the user for confirmation before a event is deleted. If user confirms the
         event is deleted from the Nextcloud calendar.
         :param event: dictionary with the details of the event
-        :return: none
         """
         if event is not None:
             confirm = self.ask_yesno(
@@ -355,9 +382,10 @@ class NextcloudCalendar(MycroftSkill):
 
     def rename_event(self, event):
         """
-
-        :param event:
-        :return:
+        Is called when a specific event for altering is found. The user is asked for a new title
+        of the event and the event title is changed using the CalDav interface.
+        :param event: a specific event in python dict representation
+        :return: None
         """
         if event is not None:
             new_title = self.get_response("rename.desired.title", {"title": event['title']})
