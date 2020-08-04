@@ -100,11 +100,29 @@ Da in unseren Vorüberlegungen bereits die Bonus-Aufgaben beinhaltet waren, habe
 benötigten Dateien vorerst in einem separaten Branch ausgelagert.
 
 ## Implementierung
-
+Nach dem Anlegen der Sprachein- bzw. -ausgabe-Dateien war es wichtig und notwendig eine Schnittstelle zwischen dem Nextcloud-
+Kalender und dem Skill herzustellen. Hier war die Verwendung von Caldav bereits vorgegeben und die eigentliche Implementierung
+davon wird unter nachfolgendem Punkt beschrieben.
 ### cal_dav_interface
 
 ### ___init___
 
 
 ## Learnings
+Insgesamt lässt sich bei den Learnings Folgendes festhalten:
+
+### Positives:
+1. Der allgemeine Umgang mit einem Raspberry sowie weiterer an den Pi verbundene Hardware und die daraus resultierenden 
+Probleme mit Treibern und Einstellungen unter Linux konnten hier noch einmal sehr gut vertieft werden. 
+2. Das Kennenlernen eines OpenSource Sprachassistententools (MyCroft) war sehr spannend.
+3. Es war sehr interessant, die Schnittstelle Caldav und iCalendar und allem was dazugehört, zu benutzen und den Umgang 
+damit zu üben. Bisher hatten wir beide noch keine Erfahrung damit.
+
+### Negatives:
+1. Beim Testen des eigenen Skills und dessen Funktionen kam es sehr häufig dazu, dass die Spracherkennung einzelne Worte
+nicht richtig nachvollziehen konnte oder sie falsch verstanden hat und es so häufiger zu Konflikten mit anderen Skills kam.
+Dies kann zum Einen natürlich an etwas undeutlicher Sprache liegen, aber insbesondere mit Eigennamen kam es doch auch häufiger
+zu Schwierigkeiten, was für einen Kalenderskill denkbar schlecht ist. Gerade beim Anlegen eines neuen Kalendereintrags werden
+doch häufiger Namen bzw. Eigennamen verwendet. Werden diese nicht richtig erkannt, führt das möglicherweise zur Frustration
+bei Usern.
 
