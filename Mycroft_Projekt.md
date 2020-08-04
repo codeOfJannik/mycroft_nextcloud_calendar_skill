@@ -94,7 +94,15 @@ Nutzer danach fragt.
 
 Basierend auf diesen Testfiles wurden anschließend die jeweiligen .dialog 
 und .intent Dateien angelegt, ebenfalls mit Vorüberlegungen auf welche Weise der Benutzer
-die Sätze jeweils anders formulieren könnte und dennoch eine Antwort erwartet.
+die Sätze jeweils anders formulieren könnte und dennoch eine Antwort erwartet. Hierbei gilt zu beachten:
+
+1. .intent-Dateien: Diese Dateien bilden das ab, was der Nutzer an Mycroft richtet.
+2. .dialog-Dateien: Diese Dateien bilden die Antwortmöglichkeiten von Mycroft ab.
+3. Insgesamt:   
+- Worte in `()` bilden eine Auswahlmöglichkeit mehrerer Worte ab, die mit einem `|` getrennt werden. Zudem ist
+es möglich ein "leeres" Feld zur Auswahl zu lassen, falls es möglich sein soll, keine der Möglichkeiten benutzen zu müssen.  
+- Bei Worten in `{}` handelt es sich um Variablen, die später im Code verwendet werden können.
+ 
 
 Da in unseren Vorüberlegungen bereits die Bonus-Aufgaben beinhaltet waren, haben wir für den Anfang die zugehörigen, nicht 
 benötigten Dateien vorerst in einem separaten Branch ausgelagert.
@@ -106,6 +114,10 @@ davon wird unter nachfolgendem Punkt beschrieben.
 ### cal_dav_interface
 
 ### ___init___
+
+### Code-Dokumentierung
+Für die Aufgabe war die Code-Dokumentierung gemäß der Google-Styleguidelines gefordert. Diese sind unter folgendem [Link](https://google.github.io/styleguide/pyguide.html) 
+zu finden.
 
 
 ## Learnings
