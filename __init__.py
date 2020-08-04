@@ -214,8 +214,8 @@ class NextcloudCalendar(MycroftSkill):
     @intent_handler("rename.event.intent")
     def handle_rename_event(self, message):
         """
-
-        :param message:
+        Handles the intent for renaming an event.
+        :param message: the intent message
         :return:
         """
         event = self.select_event_for_altering(message)
@@ -223,6 +223,13 @@ class NextcloudCalendar(MycroftSkill):
 
     @intent_handler("create.event.intent")
     def handle_create_event(self, message):
+
+        """
+        Handles the intent for creating a new event.
+        :param: the speech input message
+        :return
+        """
+
         title, date = get_title_date_from_message(message)
         fullday = False
         while title is None:
