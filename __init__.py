@@ -65,6 +65,7 @@ def get_title_date_from_message(message):
         date = extracted[0]
     return title, date
 
+
 class NextcloudCalendar(MycroftSkill):
     """
     The class contains intent handlers
@@ -268,6 +269,7 @@ class NextcloudCalendar(MycroftSkill):
         """
         title, date = get_title_date_from_message(message)
         fullday = False
+
         while title is None:
             title = self.get_response("ask.for.title", {"action": "create"})
         self.log.info(f"set title of new event to: {title}")
@@ -318,7 +320,8 @@ class NextcloudCalendar(MycroftSkill):
         :return: the event that should be renamed/deleted as a python dict
         """
         title, date = get_title_date_from_message(message)
-        title = self.remove_time_from_title(title)
+        if title is not None:
+            title = self.remove_time_from_title(title)
 
         self.log.info(f"Received altering intent with {title} and {date}")
         if title is None and date is None:
@@ -377,7 +380,7 @@ class NextcloudCalendar(MycroftSkill):
         if len(events_on_date) == 1:
             return events_on_date[0]
         if len(events_on_date) > 1:
-            title_of_events = [event["title"] for event in events_on_date]
+            title_of_events = [event["title"] for event in events_on_date if event["title"] is not None]
             self.speak_dialog("multiple.matching.events", {"detail": "date"})
             title = self.ask_selection(title_of_events, "event.selection.delete", None, 0.7)
             event = next((event for event in events_on_date if event["title"] == title), None)

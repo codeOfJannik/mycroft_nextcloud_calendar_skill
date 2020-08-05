@@ -33,6 +33,51 @@ class CalDavInterface:
         my_principal = self.client.principal()
         return my_principal.calendars()[0]
 
+
+    def get_event_details(self, event):
+        """
+        Parses ical strings for event to dictionary containing title, start time and end time
+        :param event: ical string of event
+        :return: dictionary representation of event
+        """
+        start = None
+        if "DTSTART" in event.keys():
+            start = event["DTSTART"].dt
+            if not isinstance(start, datetime):
+                start = datetime.combine(start, datetime.min.time())
+                start = start.replace(tzinfo=Utc)
+            else:
+                start = start.astimezone(self.local_timezone)
+        end = None
+        if "DTEND" in event.keys():
+            end = event["DTEND"].dt
+            if not isinstance(end, datetime):
+                end = datetime.combine(end, datetime.min.time())
+                end = end.replace(tzinfo=Utc)
+            else:
+                end = end.astimezone(self.local_timezone)
+        title = "untitled event"
+        if "SUMMARY" in event.keys():
+            title = str(event["SUMMARY"])
+
+        return {"title": title, "starttime": start, "endtime": end}
+
+    def parse_ics_events(self, events):
+        """
+        Parses calendar events from ical format to python dictionary
+        :param events: list of events (ical strings) that should be parsed
+        :return: python list containing the pared events as dictionaries
+        """
+        parsed_events = []
+        for event in events:
+            cal = icalendar.Calendar.from_ical(event.data, True)
+            url = event.url
+            for vevent in cal[0].walk("vevent"):
+                event_details = self.get_event_details(vevent)
+                event_details["event_url"] = url
+                parsed_events.append(event_details)
+        return parsed_events
+
     def get_events_for_timeperiod(self, startdate, enddate):
         """
         Returns list of parsed events in a specific time period
@@ -83,50 +128,6 @@ class CalDavInterface:
         matching_events = [event for event in parsed_events
                            if title.lower() in event["title"].lower()]
         return matching_events
-
-    def get_event_details(self, event):
-        """
-        Parses ical strings for event to dictionary containing title, start time and end time
-        :param event: ical string of event
-        :return: dictionary representation of event
-        """
-        start = None
-        if "DTSTART" in event.keys():
-            start = event["DTSTART"].dt
-            if not isinstance(start, datetime):
-                start = datetime.combine(start, datetime.min.time())
-                start = start.replace(tzinfo=Utc)
-            else:
-                start = start.astimezone(self.local_timezone)
-        end = None
-        if "DTEND" in event.keys():
-            end = event["DTEND"].dt
-            if not isinstance(end, datetime):
-                end = datetime.combine(end, datetime.min.time())
-                end = end.replace(tzinfo=Utc)
-            else:
-                end = end.astimezone(self.local_timezone)
-        title = None
-        if "SUMMARY" in event.keys():
-            title = str(event["SUMMARY"])
-
-        return {"title": title, "starttime": start, "endtime": end}
-
-    def parse_ics_events(self, events):
-        """
-        Parses calendar events from ical format to python dictionary
-        :param events: list of events (ical strings) that should be parsed
-        :return: python list containing the pared events as dictionaries
-        """
-        parsed_events = []
-        for event in events:
-            cal = icalendar.Calendar.from_ical(event.data, True)
-            url = event.url
-            for vevent in cal[0].walk("vevent"):
-                event_details = self.get_event_details(vevent)
-                event_details["event_url"] = url
-                parsed_events.append(event_details)
-        return parsed_events
 
     def create_new_event(self, title, date, duration, fullday):
         """

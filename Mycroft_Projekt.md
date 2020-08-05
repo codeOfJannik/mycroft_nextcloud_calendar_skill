@@ -111,13 +111,68 @@ benötigten Dateien vorerst in einem separaten Branch ausgelagert.
 Nach dem Anlegen der Sprachein- bzw. -ausgabe-Dateien war es wichtig und notwendig eine Schnittstelle zwischen dem Nextcloud-
 Kalender und dem Skill herzustellen. Hier war die Verwendung von Caldav bereits vorgegeben und die eigentliche Implementierung
 davon wird unter nachfolgendem Punkt beschrieben.
-### cal_dav_interface
 
-### ___init___
+### cal_dav_interface
+Für die Implemmentierung der Schnittstelle zum Nexcloud Kalender wurden folgende Libraries verwendet:
+- [CalDav](https://pypi.org/project/caldav/)
+- [iCalendar](https://pypi.org/project/icalendar/)
+
+Um die Schnittstelle zum Kalender abzubilden, wurde die Klasse `CalDavInterface` erstellt. Um die Verbindung zum Nextcloud Kalender aufbauen
+zu können, wird die CalDav-Url, ein Username und ein Passwort benötigt. Diese drei Parameter sind in der [settingsmeta.yaml](./settingsmeta.yaml)
+aufgelistet, was bedeutet, dass der User sie auf home.mycroft.ai in den Skill Settings nach der Installation des Skills setzen kann.
+Sobald die festgelegten Login Details automatisch mit dem Gerät synchronisiert wurden, kann der Skill auf die Credentials zugreifen und
+beim Instanzieren der Klasse an diese übergeben.
+
+Der Klasse wurden alle benötigten Funktionen hinzugefügt, um mit dem Nextcloud Calender zu interagieren. Die Daten die man bei der
+Abfrage des Kalenders enthält sind im Format eines *.ical* Strings. Um leichter in Python arbeiten zu können, wird der
+*ical* String für jedes Event mithilfe der [iCalendar](https://pypi.org/project/icalendar/) geparst und in ein
+Python Dictionary geschrieben, das dann den Titel, die Startzeit und Endzeit enthält. Außerdem wird in dem Dictionary eine URL gespeichert,
+die einen späteren Zugriff auf das eigentliche Event im Kalender überdie [CalDav](https://pypi.org/project/caldav/) ermöglicht.
+
+Vom MyCroft Skill genutze Methoden sind:
+- *get_next_event* um das nächste Event abzufragen, falls eines existiert
+- *get_events_for_date* um alle Events an einem bestimmten Tag abzufragen
+- *get_events_with_title* um Events zu einem gegebenen Title zu finden 
+(wird für das Umbenennen und Löschen von spezifischen Events benötigt)
+- *create_new_event* um ein neues Event anzulegen (hier wird die [iCalendar](https://pypi.org/project/icalendar/) Library
+verwendet, um die festgelegten Event Details in ein *ical* String umzuwandeln, der von der [CalDav](https://pypi.org/project/caldav/)
+Library verarbeitet werden kann)
+- *delete_event* um ein Event anhand seiner Event Url zu löschen
+- *rename_event* um ein Event anhand seiner Event Url einen neuen Event Title zu geben
+
+### \_\_init__.py
+Beim Starten des Skills wird zunächst geprüft, ob die benötigen Credentials für die Nextcloud verfügbar sind. Wenn ja, wird eine Instanz
+des CalDavInterface erstellt. Ansonsten wird der User über die Sprachausgabe über die fehlenden Credentials informiert und das
+empfohlene Vorgehen erklärt.  
+Die Klasse für den Skill enthält insgesamt sechs Intent Handler Methoden:
+1. *handle_get_next_appointment* für die Abfrage des Kalenders nach dem nächsten geplanten Termin. Je nach gegebenen Event Details,
+wird für die entsprechende Ausgabe der passende Name der .dialog Datei zusammengebaut und die vorhandenen Informationen übergeben.
+2. *handle_get_appointment_date* für die Abfrage des Kalenders der Termine an einem bestimmten Tag. Sind Termine an dem Tag geplant
+wird zunächst nur die Anzahl der geplanten Termine ausgegeben und der User gefragt, ob die Termine aufgelistet werden sollen.
+3. *handle_delete_event* für das Löschen eines Termins aus dem Kalender. Zunächst wird basierend auf den vom User gegebenen
+Informationen (Titel, Datum) nach einem übereinstimmenden Event gesucht. Gibt es mehrere Übereinstimmungen, wird der User nach einer
+genauen Angabe des zu löschenden Events gefragt. Bevor das Event endgültig gelöscht wird, muss der User dies noch einmal bestätigen.
+4. *handle_rename_event* für das Umbennen eines Termins im Kalender. Zunächst wird basierend auf den vom User gegebenen
+Informationen (Titel, Datum) nach einem übereinstimmenden Event gesucht. Gibt es mehrere Übereinstimmungen, wird der User nach einer
+genauen Angabe des umzubenennenden Events gefragt. Anschließend muss der User noch den gewünschten, neuen Titel des Termins angeben.
+5. *handle_create_event* für das Anlegen eines neuen Termins. Je nach Umfang der Informationen in der initialen Intent Message,
+wird der User nach mehr oder weniger weiteren Informationen gefragt. Benötigt werden Titel, Datum, Startzeit (bzw. ganztägig) und
+Dauer, wovon Titel, Datum und Startzeit ggf. schon aus der initialen Intent Message herausgelesen werden können.
+6. *handle_connect_to_calendar* für den Verbindungsaufbau zum Kalender, nachdem auf home.mycroft.ai die Credentials eingetragen
+und auf das Gerät synchronisiert wurden.  
+Zusätzlich enthält die Klasse unterschieldliche Hilfsmethoden, unter anderem um durch unterschiedliche Rückfragen die jeweils genauen Events
+vom User zu erfragen.  
+An mehreren Stellen werden Funktionen des [mycroft.util](https://mycroft-core.readthedocs.io/en/latest/source/mycroft.html#mycroft-util)
+Packages verwendet:
+- *nice_time* und *nice_date*, um *datetime* Objekte in ein besseres Output Formt zu bringen
+- *extract_datetime* um aus den Nachrichten der Spracheingabe Datumsangaben in *datetime* Objekte zu parsen
+- *extract_duration* um aus den Nachrichten der Spracheingabe *timedelta* Objekte zu erhalten
+- *extract_number* um aus den Nachrichten der Spracheingabe *Integer* zu erhalten
+- *default_timezone* um die Zeitzone des Users zu erfahren, damit die Zeitangaben der Termine korrekt ausgegebene werden können
 
 ### Code-Dokumentierung
-Für die Aufgabe war die Code-Dokumentierung gemäß der Google-Styleguidelines gefordert. Diese sind unter folgendem [Link](https://google.github.io/styleguide/pyguide.html) 
-zu finden.
+Für die Aufgabe war die Code-Dokumentierung in Python Docstrings gemäß der Google-Styleguidelines gefordert.
+Die Guidelines sind unter folgendem [Link](https://google.github.io/styleguide/pyguide.html) zu finden.
 
 
 ## Learnings
@@ -132,9 +187,9 @@ damit zu üben. Bisher hatten wir beide noch keine Erfahrung damit.
 
 ### Negatives:
 1. Beim Testen des eigenen Skills und dessen Funktionen kam es sehr häufig dazu, dass die Spracherkennung einzelne Worte
-nicht richtig nachvollziehen konnte oder sie falsch verstanden hat und es so häufiger zu Konflikten mit anderen Skills kam.
-Dies kann zum Einen natürlich an etwas undeutlicher Sprache liegen, aber insbesondere mit Eigennamen kam es doch auch häufiger
-zu Schwierigkeiten, was für einen Kalenderskill denkbar schlecht ist. Gerade beim Anlegen eines neuen Kalendereintrags werden
+nicht richtig nachvollziehen konnte oder sie falsch verstanden hat. Gelegentlich kam es so zu Konflikten mit anderen Skills.
+Aber insbesondere mit Eigennamen kam es doch auch häufiger zu Schwierigkeiten, was für einen Kalender Skill
+denkbar schlecht ist. Gerade beim Anlegen eines neuen Kalendereintrags werden
 doch häufiger Namen bzw. Eigennamen verwendet. Werden diese nicht richtig erkannt, führt das möglicherweise zur Frustration
 bei Usern.
 
