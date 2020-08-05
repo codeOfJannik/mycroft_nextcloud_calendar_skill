@@ -81,6 +81,11 @@ class NextcloudCalendar(MycroftSkill):
         self.caldav_interface = None
         self.timezone = None
 
+    def get_intro_message(self):
+        return "To use the nextcloud calendar skill, please visit https://home.mycroft.ai/skills" \
+               " to set Nextcloud credentials. " \
+               "Wait until the settings have been updated on your device and restart the skill."
+
     def initialize(self):
         """
         Checks if the credentials (url, username and password) are set on Mycroft website.
