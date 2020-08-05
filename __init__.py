@@ -99,13 +99,7 @@ class NextcloudCalendar(MycroftSkill):
         password = self.settings.get('password')
         url = self.settings.get('url')
 
-        if not username:
-            self.speak_dialog('err.nextcloud.settings.missing')
-            return False
-        if not password:
-            self.speak_dialog('err.nextcloud.settings.missing')
-            return False
-        if not url:
+        if not username or not password or not url:
             self.speak_dialog('err.nextcloud.settings.missing')
             return False
 
