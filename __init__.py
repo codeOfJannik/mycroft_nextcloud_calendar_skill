@@ -82,9 +82,14 @@ class NextcloudCalendar(MycroftSkill):
         self.timezone = None
 
     def get_intro_message(self):
+        """
+        Overwrites get intro message of MycroftSkill class. Returns string for output
+        after first installation.
+        :return: string for output
+        """
         return "To use the nextcloud calendar skill, please visit https://home.mycroft.ai/skills" \
                " to set Nextcloud credentials. " \
-               "Wait until the settings have been updated on your device and restart the skill."
+               "After the settings have been updated on your device you can say 'Connect to the calendar'"
 
     def initialize(self):
         """
@@ -94,7 +99,8 @@ class NextcloudCalendar(MycroftSkill):
         is created.
         :return: [bool] False if credentials are not set
         """
-        # TODO: check if get_intro_message() is suitable for our purpose
+        self.timezone = default_timezone()
+
         username = self.settings.get('username')
         password = self.settings.get('password')
         url = self.settings.get('url')
@@ -103,15 +109,32 @@ class NextcloudCalendar(MycroftSkill):
             self.speak_dialog('err.nextcloud.settings.missing')
             return False
 
-        self.timezone = default_timezone()
+        self.caldav_interface = CalDavInterface(
+            url,
+            username,
+            password,
+            self.timezone
+        )
+        self.log.info(f"Initialized CaldDavInterface with timezone {self.timezone}")
+        return True
+
+    @intent_handler('connect.to.calendar')
+    def handle_connect_to_calendar(self):
+        username = self.settings.get('username')
+        password = self.settings.get('password')
+        url = self.settings.get('url')
+
+        if not username or not password or not url:
+            self.speak_dialog('err.nextcloud.settings.missing')
+            return False
 
         self.caldav_interface = CalDavInterface(
-            self.settings.get('url'),
-            self.settings.get('username'),
-            self.settings.get('password'),
-            default_timezone()
+            url,
+            username,
+            password,
+            self.timezone
         )
-        self.log.info(f"Initialized CaldDavInterface with timezone {default_timezone()}")
+        self.log.info(f"Initialized CaldDavInterface with timezone {self.timezone}")
         return True
 
     @intent_handler('get.next.appointment.intent')
