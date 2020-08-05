@@ -118,7 +118,7 @@ class NextcloudCalendar(MycroftSkill):
         self.log.info(f"Initialized CaldDavInterface with timezone {self.timezone}")
         return True
 
-    @intent_handler('connect.to.calendar')
+    @intent_handler('connect.to.calendar.intent')
     def handle_connect_to_calendar(self):
         username = self.settings.get('username')
         password = self.settings.get('password')
