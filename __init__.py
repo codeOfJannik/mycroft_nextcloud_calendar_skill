@@ -60,12 +60,10 @@ def get_title_date_from_message(message):
     date = None
     if "title" in message.data:
         title = message.data["title"]
-    if "date" in message.data:
-        extracted = extract_datetime(message.data['utterance'], datetime.today())
-        if extracted is not None:
-            date = extracted[0]
+    extracted = extract_datetime(message.data['utterance'], datetime.today())
+    if extracted is not None:
+        date = extracted[0]
     return title, date
-
 
 class NextcloudCalendar(MycroftSkill):
     """
@@ -89,7 +87,8 @@ class NextcloudCalendar(MycroftSkill):
         """
         return "To use the nextcloud calendar skill, please visit https://home.mycroft.ai/skills" \
                " to set Nextcloud credentials. " \
-               "After the settings have been updated on your device you can say 'Connect to the calendar'"
+               "After the settings have been updated on your device you can say" \
+               " 'Connect to the calendar'"
 
     def initialize(self):
         """
@@ -120,6 +119,11 @@ class NextcloudCalendar(MycroftSkill):
 
     @intent_handler('connect.to.calendar.intent')
     def handle_connect_to_calendar(self):
+        """
+        Handler for intent to force the skill to connect to the nextcloud calendar.
+        Especially used when settings from home.mycroft.ai were updated.
+        :returns success of connect
+        """
         username = self.settings.get('username')
         password = self.settings.get('password')
         url = self.settings.get('url')
@@ -273,13 +277,7 @@ class NextcloudCalendar(MycroftSkill):
             date, rest = extract_datetime(date_response)
         self.log.info(f"set date of new event to: {date}")
 
-        extracted = extract_datetime(title, datetime.now(self.timezone))
-        if extracted is not None:
-            date_in_title, rest = extracted
-            if date_in_title is not None:
-                self.log.info("Event title included date")
-                date_said = title.replace(rest, "")
-                title = title.replace(date_said, "")
+        title = self.remove_time_from_title(title)
 
         if date.time() == dt.time(0):
             time, rest = None, None
@@ -319,17 +317,17 @@ class NextcloudCalendar(MycroftSkill):
         :param message: the intent message
         :return: the event that should be renamed/deleted as a python dict
         """
-        event = None
         title, date = get_title_date_from_message(message)
+        title = self.remove_time_from_title(title)
 
         self.log.info(f"Received altering intent with {title} and {date}")
         if title is None and date is None:
             title = self.get_response("ask.for.title", {"action": "delete"})
         if date is not None:
-            event = self.select_event_date_not_none(date)
+            return self.select_event_date_not_none(title, date)
         if title is not None:
-            event = self.select_event_title_not_none(title)
-        return event
+            return self.select_event_title_not_none(title)
+        return None
 
     def select_event_title_not_none(self, title):
         """
@@ -360,7 +358,7 @@ class NextcloudCalendar(MycroftSkill):
             self.speak_dialog("no.event.changed", {"action": "deleted"})
         return None
 
-    def select_event_date_not_none(self, date):
+    def select_event_date_not_none(self, title, date):
         """
         If the date of an event that should be deleted is given this
         method is used to handle the selection of the correct event if there are
@@ -370,6 +368,10 @@ class NextcloudCalendar(MycroftSkill):
         :return: None
         """
         events_on_date = self.caldav_interface.get_events_for_date(date)
+        if title is not None:
+            event = next((event for event in events_on_date if event["title"] == title), None)
+            if event is not None:
+                return event
         if len(events_on_date) == 0:
             self.speak_dialog("no.events.events.on.date", {"date": nice_date(date)})
         if len(events_on_date) == 1:
@@ -416,6 +418,21 @@ class NextcloudCalendar(MycroftSkill):
                 self.speak_dialog("successful.rename.event", {"new_title": new_title})
                 return
         self.speak_dialog("no.event.changed", {"action": "renamed"})
+
+    def remove_time_from_title(self, title):
+        """
+        If the parsed title contains date or time it is removed from it
+        :param title: parsed title of the intent message
+        :return: cleaned up title
+        """
+        extracted = extract_datetime(title, datetime.now(self.timezone))
+        if extracted is not None:
+            date_in_title, rest = extracted
+            if date_in_title is not None:
+                self.log.info("Event title included date")
+                date_said = title.replace(rest, "")
+                title = title.replace(date_said, "")
+        return title
 
 
 def create_skill():
