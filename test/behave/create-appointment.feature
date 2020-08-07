@@ -4,7 +4,12 @@ Feature: create-appointment
     Given an english speaking user
     When the user says "<create an appointment>"
     Then "nextcloud-calendar" should reply with exactly "What is the title of the event you want to create?"
-    And the user replies with "cancel"
+    And the user replies with "Test event"
+    Then "nexcloud-calendar" should reply with dialog from "ask.for.date.dialog"
+    And the user replies with "tomorrow at 1 pm"
+    Then "nexcloud-calendar" should reply with dialog from "ask.duration.new.event.dialog"
+    And the user replies with "1 hour"
+    Then "nexcloud-calendar" should reply with dialog from "successful.create.event.dialog"
 
     Examples: Create an appointment
       | create an appointment |
@@ -16,19 +21,27 @@ Feature: create-appointment
     Given an english speaking user
     When the user says "<create an appointment for tomorrow 1 pm>"
     Then "nextcloud-calendar" should reply with exactly "What is the title of the event you want to create?"
-    And the user replies with "cancel"
+    And the user replies with "Test event"
+    Then "nextcloud-calendar" should reply with dialog from "new.event.starttime.dialog"
+    And the user replies with "9 am"
+    Then "nexcloud-calendar" should reply with dialog from "ask.duration.new.event.dialog"
+    And the user replies with "1 hour"
+    Then "nexcloud-calendar" should reply with dialog from "successful.create.event.dialog"
 
     Examples: Create an create an appointment for tomorrow 1 pm
       | create an appointment for tomorrow 1 pm |
       | create an event on next monday |
       | plan a new appointment for the 1st of December |
-      | add an event today at 8 pm |
+      | add an event today |
 
   Scenario Outline: create appointment title
     Given an english speaking user
     When the user says "<create an appointment entitled Test event>"
     Then "nextcloud-calendar" should reply with dialog from "ask.for.date.dialog"
-    And the user replies with "cancel"
+    And the user replies with "tomorrow at 5 pm"
+    Then "nexcloud-calendar" should reply with dialog from "ask.duration.new.event.dialog"
+    And the user replies with "1 hour"
+    Then "nexcloud-calendar" should reply with dialog from "successful.create.event.dialog"
 
     Examples: Create an appointment entitled Test event
       | create an appointment entitled Test event |
@@ -40,7 +53,10 @@ Feature: create-appointment
     Given an english speaking user
     When the user says "<create an appointment entitled Test event tomorrow>"
     Then "nextcloud-calendar" should reply with dialog from "new.event.starttime.dialog"
-    And the user replies with "cancel"
+    And the user replies with "9 am"
+    Then "nexcloud-calendar" should reply with dialog from "ask.duration.new.event.dialog"
+    And the user replies with "1 hour"
+    Then "nexcloud-calendar" should reply with dialog from "successful.create.event.dialog"
 
     Examples: Create an appointment entitled Test event
       | create an appointment entitled Test event tomorrow |
@@ -52,7 +68,8 @@ Feature: create-appointment
     Given an english speaking user
     When the user says "<create an appointment entitled Test event tomorrow at 9 am>"
     Then "nextcloud-calendar" should reply with dialog from "ask.duration.new.event.dialog"
-    And the user replies with "cancel"
+    And the user replies with "1 hour"
+    Then "nexcloud-calendar" should reply with dialog from "successful.create.event.dialog"
 
     Examples: Create an appointment entitled Test event
       | create an appointment entitled Test event tomorrow at 9 am |

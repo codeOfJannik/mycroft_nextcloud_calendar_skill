@@ -309,6 +309,8 @@ class NextcloudCalendar(MycroftSkill):
 
         self.caldav_interface.create_new_event(title, date, duration, fullday)
 
+        self.speak_dialog("successful.create.event", {"event": title, "date": nice_date(date)})
+
     def select_event_for_altering(self, message):
         """
         Method that is used to select the correct event to

@@ -5,6 +5,7 @@ Feature: rename-appointment
     When the user says "<rename an event>"
     Then "nextcloud-calendar" should reply with exactly "What is the title of the event you want to rename?"
     And the user replies with "cancel"
+    Then "nextcloud-calendar" should reply with dialog from "no.event.changed.dialog"
 
     Examples: Rename an event
       | rename an event |
