@@ -242,7 +242,7 @@ class NextcloudCalendar(MycroftSkill):
         :param message: the intent message
         :return none
         """
-        event = self.select_event_for_altering(message)
+        event = self.select_event_for_altering(message, "delete")
         self.delete_event_on_confirmation(event)
 
     @intent_handler("rename.event.intent")
@@ -254,7 +254,7 @@ class NextcloudCalendar(MycroftSkill):
         :param message: the intent message
         :return: None
         """
-        event = self.select_event_for_altering(message)
+        event = self.select_event_for_altering(message, "rename")
         self.rename_event(event)
 
     @intent_handler("create.event.intent")
@@ -311,7 +311,7 @@ class NextcloudCalendar(MycroftSkill):
 
         self.speak_dialog("successful.create.event", {"event": title, "date": nice_date(date)})
 
-    def select_event_for_altering(self, message):
+    def select_event_for_altering(self, message, action):
         """
         Method that is used to select the correct event to
         rename/delete based on title and date information
@@ -327,7 +327,7 @@ class NextcloudCalendar(MycroftSkill):
 
         self.log.info(f"Received altering intent with {title} and {date}")
         if title is None and date is None:
-            title = self.get_response("ask.for.title", {"action": "delete"})
+            title = self.get_response("ask.for.title", {"action": action})
         if date is not None:
             return self.select_event_date_not_none(title, date)
         if title is not None:

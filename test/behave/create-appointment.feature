@@ -32,7 +32,7 @@ Feature: create-appointment
       | create an appointment for tomorrow 1 pm |
       | create an event on next monday |
       | plan a new appointment for the 1st of December |
-      | add an event today |
+      | add an event for today |
 
   Scenario Outline: create appointment title
     Given an english speaking user
@@ -62,7 +62,7 @@ Feature: create-appointment
       | create an appointment entitled Test event tomorrow |
       | create an event Test event on next monday |
       | plan a new appointment entitled Test event for the 1st of December|
-      | add an event Test event today |
+      | add an event Test event for today |
 
   Scenario Outline: create appointment title date time
     Given an english speaking user
@@ -74,5 +74,5 @@ Feature: create-appointment
     Examples: Create an appointment entitled Test event
       | create an appointment entitled Test event tomorrow at 9 am |
       | create an event Test event on next monday in the evening |
-      | plan a new appointment entitled Test event for the 1st of December 3 pm|
-      | add an event Test event today afternoon|
+      | plan a new appointment entitled Test event for the 1st of December at 3 pm|
+      | add an event Test event for today afternoon|
