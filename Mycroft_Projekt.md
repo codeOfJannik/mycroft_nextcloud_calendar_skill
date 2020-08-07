@@ -76,23 +76,28 @@ möglich sein sollten und dazu wurden nach folgendem [Schema](https://mycroft-ai
 Ein solches Testfile besteht aus den einzelnen Tests für die Funktionalitäten des Skills. Anhand folgenden Beispiels werden
 die Optionen erklärt:   
  ```
- Feature: nextcloud-calendar 
+Feature: next-appointment
 
- Scenario: number of appointments today  
-    Given an english speaking user   
-     When the user says <number of appointments today>                
-     Then "nextcloud-calendar" should reply with dialog from "number.appointments.today.dialog" 
+  Scenario Outline: next appointment
+    Given an english speaking user
+    When the user says <when is my next appointment>
+    Then "nextcloud-calendar" should reply with anything
+    And the reply should contain "appointment"
 
-  Examples: How many appointments do I have today  
-    | number of appointments today |  
-    | how many appointments do I have today |
+    Examples: When is my next appointment
+      | when is my next appointment |
+      | what is my next appointment |
+      | when's my next appointment |
+      | what's my next appointment |
+      | when will my next appointment take place |
 ``` 
-Im Scenario wird der allgemein Testfall beschrieben. Da unsere Implementierung nur die englische Sprache unterstützt,
+Im "Scenario Outline" wird der allgemein Testfall beschrieben. Da unsere Implementierung nur die englische Sprache unterstützt,
 ist immer ein englischsprachiger Benutzer gegeben. Der `When-Then` Test beschreibt, was passiert, wenn ein Nutzer eine gewisse
-Phrase verwendet, im obigen Beispiel soll also die Zahl der Events für den heutigen Tag ausgegeben werden, wenn der 
-Nutzer danach fragt.
+Phrase verwendet. Im obigen Beispiel gibt es zwei Mögliche Fälle: Es gibt ein geplantes Event in der Zukunft oder eben nicht.
+Die Gemeinsamkeit der sprachausgabe für beide Fälle ist hier nur das Wort "appointment", weshalb nur geprüft wird, ob der Skill
+überhaupt etwas antwortet und die Antwort "appointment" enthält.
 
-Basierend auf diesen Testfiles wurden anschließend die jeweiligen .dialog 
+Basierend auf den Scenarios der Testfiles wurden anschließend die jeweiligen .dialog 
 und .intent Dateien angelegt, ebenfalls mit Vorüberlegungen auf welche Weise der Benutzer
 die Sätze jeweils anders formulieren könnte und dennoch eine Antwort erwartet. Hierbei gilt zu beachten:
 
@@ -102,15 +107,11 @@ die Sätze jeweils anders formulieren könnte und dennoch eine Antwort erwartet.
 - Worte in `()` bilden eine Auswahlmöglichkeit mehrerer Worte ab, die mit einem `|` getrennt werden. Zudem ist
 es möglich ein "leeres" Feld zur Auswahl zu lassen, falls es möglich sein soll, keine der Möglichkeiten benutzen zu müssen.  
 - Bei Worten in `{}` handelt es sich um Variablen, die später im Code verwendet werden können.
- 
-
-Da in unseren Vorüberlegungen bereits die Bonus-Aufgaben beinhaltet waren, haben wir für den Anfang die zugehörigen, nicht 
-benötigten Dateien vorerst in einem separaten Branch ausgelagert.
 
 ## Implementierung
 Nach dem Anlegen der Sprachein- bzw. -ausgabe-Dateien war es wichtig und notwendig eine Schnittstelle zwischen dem Nextcloud-
-Kalender und dem Skill herzustellen. Hier war die Verwendung von Caldav bereits vorgegeben und die eigentliche Implementierung
-davon wird unter nachfolgendem Punkt beschrieben.
+Kalender und dem Skill herzustellen. Hier wurde die Verwendung von Caldav bereits empfohlen. Die eigentliche Implementierung
+der Schnittstelle und des Skills an sich wird unter den nachfolgenden Punkt beschrieben.
 
 ### cal_dav_interface
 Für die Implemmentierung der Schnittstelle zum Nexcloud Kalender wurden folgende Libraries verwendet:
@@ -173,7 +174,6 @@ Packages verwendet:
 ### Code-Dokumentierung
 Für die Aufgabe war die Code-Dokumentierung in Python Docstrings gemäß der Google-Styleguidelines gefordert.
 Die Guidelines sind unter folgendem [Link](https://google.github.io/styleguide/pyguide.html) zu finden.
-
 
 ## Learnings
 Insgesamt lässt sich bei den Learnings Folgendes festhalten:
