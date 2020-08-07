@@ -3,7 +3,6 @@ Feature: next-appointment
   Scenario Outline: next appointment
     Given an english speaking user
     When the user says "<when is my next appointment>"
-    Then "nextcloud-calendar" should reply with anything
     Then mycroft reply should contain "appointment"
 
     Examples: When is my next appointment
