@@ -2,7 +2,7 @@ Feature: next-appointment
 
   Scenario Outline: next appointment
     Given an english speaking user
-    When the user says <when is my next appointment>
+    When the user says "<when is my next appointment>"
     Then "nextcloud-calendar" should reply with anything
     And the reply should contain "appointment"
 

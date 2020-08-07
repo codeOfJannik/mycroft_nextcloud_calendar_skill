@@ -2,7 +2,7 @@ Feature: appointments-date
 
   Scenario Outline: date appointments
     Given an english speaking user
-    When the user says <do i have an appointment tomorrow>
+    When the user says "<do i have an appointment tomorrow>"
     Then "nextcloud-calendar" should reply with anything
     And the reply should contain "for"
     And the reply should contain "In your calendar"
