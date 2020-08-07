@@ -3,8 +3,7 @@ Feature: appointments-date
   Scenario Outline: date appointments
     Given an english speaking user
     When the user says "<do i have an appointment tomorrow>"
-    Then mycroft reply should contain "for"
-    And mycroft reply should contain "in your calendar"
+    Then mycroft reply should contain "in your calendar"
 
     Examples: Do i have an appointment tomorrow
       | do i have an appointment tomorrow |
