@@ -124,13 +124,13 @@ aufgelistet, was bedeutet, dass der User sie auf home.mycroft.ai in den Skill Se
 Sobald die festgelegten Login Details automatisch mit dem Gerät synchronisiert wurden, kann der Skill auf die Credentials zugreifen und
 beim Instanzieren der Klasse an diese übergeben.
 
-Der Klasse wurden alle benötigten Funktionen hinzugefügt, um mit dem Nextcloud Calender zu interagieren. Die Daten die man bei der
-Abfrage des Kalenders enthält sind im Format eines *.ical* Strings. Um leichter in Python arbeiten zu können, wird der
+Der Klasse wurden alle benötigten Funktionen hinzugefügt, um mit dem Nextcloud Calender zu interagieren. Die Daten, die man bei der
+Abfrage des Kalenders erhält, sind im Format eines *.ical* Strings. Um leichter in Python arbeiten zu können, wird der
 *ical* String für jedes Event mithilfe der [iCalendar](https://pypi.org/project/icalendar/) geparst und in ein
-Python Dictionary geschrieben, das dann den Titel, die Startzeit und Endzeit enthält. Außerdem wird in dem Dictionary eine URL gespeichert,
-die einen späteren Zugriff auf das eigentliche Event im Kalender überdie [CalDav](https://pypi.org/project/caldav/) ermöglicht.
+Python Dictionary geschrieben, das dann den Titel, die Startzeit und die Endzeit enthält. Außerdem wird in dem Dictionary eine URL gespeichert,
+die einen späteren Zugriff auf das eigentliche Event im Kalender über die [CalDav](https://pypi.org/project/caldav/) ermöglicht.
 
-Vom MyCroft Skill genutze Methoden sind:
+Vom MyCroft Skill genutzte Methoden sind:
 - *get_next_event* um das nächste Event abzufragen, falls eines existiert
 - *get_events_for_date* um alle Events an einem bestimmten Tag abzufragen
 - *get_events_with_title* um Events zu einem gegebenen Title zu finden 
