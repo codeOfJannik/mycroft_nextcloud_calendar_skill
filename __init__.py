@@ -383,7 +383,8 @@ class NextcloudCalendar(MycroftSkill):
         if len(events_on_date) == 1:
             return events_on_date[0]
         if len(events_on_date) > 1:
-            title_of_events = [event["title"] for event in events_on_date if event["title"] is not None]
+            title_of_events = [event["title"] for event in events_on_date
+                               if event["title"] is not None]
             self.speak_dialog("multiple.matching.events", {"detail": "date"})
             title = self.ask_selection(title_of_events, "event.selection.delete", None, 0.7)
             event = next((event for event in events_on_date if event["title"] == title), None)
