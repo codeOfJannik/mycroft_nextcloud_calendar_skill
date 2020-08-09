@@ -4,6 +4,7 @@ Feature: appointments-date
     Given an english speaking user
     When the user says "<do i have an appointment tomorrow>"
     Then mycroft reply should contain "in your calendar"
+    And the user replies with "cancel"
 
     Examples: Do i have an appointment tomorrow
       | do i have an appointment tomorrow |
