@@ -286,12 +286,13 @@ class NextcloudCalendar(MycroftSkill):
             pattern = re.compile(r"full\s*day")
             while time is None or time.time() == dt.time(0):
                 rest = self.get_response("new.event.starttime", {"event": title})
-                extracted = extract_datetime(rest)
-                if extracted is not None:
-                    time, rest = extracted
-                if re.search(pattern, rest):
-                    fullday = True
-                    break
+                if rest is not None:
+                    extracted = extract_datetime(rest)
+                    if extracted is not None:
+                        time, rest = extracted
+                    if re.search(pattern, rest):
+                        fullday = True
+                        break
 
             if not fullday:
                 date = datetime.combine(date.date(), time.time())
