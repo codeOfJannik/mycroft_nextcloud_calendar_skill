@@ -139,7 +139,7 @@ Vom MyCroft Skill genutzte Methoden sind:
 verwendet, um die festgelegten Event Details in ein *ical* String umzuwandeln, der von der [CalDav](https://pypi.org/project/caldav/)
 Library verarbeitet werden kann)
 - *delete_event* um ein Event anhand seiner Event Url zu löschen
-- *rename_event* um ein Event anhand seiner Event Url einen neuen Event Title zu geben
+- *rename_event* um einem Event anhand seiner Event Url einen neuen Event Title zu geben
 
 ### \_\_init__.py
 Beim Starten des Skills wird zunächst geprüft, ob die benötigen Credentials für die Nextcloud verfügbar sind. Wenn ja, wird eine Instanz
@@ -149,7 +149,7 @@ Die Klasse für den Skill enthält insgesamt sechs Intent Handler Methoden:
 1. *handle_get_next_appointment* für die Abfrage des Kalenders nach dem nächsten geplanten Termin. Je nach gegebenen Event Details,
 wird für die entsprechende Ausgabe der passende Name der .dialog Datei zusammengebaut und die vorhandenen Informationen übergeben.
 2. *handle_get_appointment_date* für die Abfrage des Kalenders der Termine an einem bestimmten Tag. Sind Termine an dem Tag geplant
-wird zunächst nur die Anzahl der geplanten Termine ausgegeben und der User gefragt, ob die Termine aufgelistet werden sollen.
+wird zunächst nur die Anzahl der geplanten Termine ausgegeben und der User anschließend gefragt, ob die Termine aufgelistet werden sollen.
 3. *handle_delete_event* für das Löschen eines Termins aus dem Kalender. Zunächst wird basierend auf den vom User gegebenen
 Informationen (Titel, Datum) nach einem übereinstimmenden Event gesucht. Gibt es mehrere Übereinstimmungen, wird der User nach einer
 genauen Angabe des zu löschenden Events gefragt. Bevor das Event endgültig gelöscht wird, muss der User dies noch einmal bestätigen.
@@ -192,4 +192,14 @@ Aber insbesondere mit Eigennamen kam es doch auch häufiger zu Schwierigkeiten, 
 denkbar schlecht ist. Gerade beim Anlegen eines neuen Kalendereintrags werden
 doch häufiger Namen bzw. Eigennamen verwendet. Werden diese nicht richtig erkannt, führt das möglicherweise zur Frustration
 bei Usern.
+2. Bei den Vorüberlegungen ist bereits unser Testing beschrieben. Hier ist uns aufgefallen, dass bei den automatischen Tests
+bei mehrmaligen Durchläufen unter denselben Bedingungen willkürliche Fehler auftreten, die bei manuellem Testing nicht
+vorkommen oder sich nicht reproduzieren lassen. Nach kurzer Recherche sind wir auf folgenden [Blog-Artikel](https://community.mycroft.ai/t/voight-kampff-how-you-can-help-addatest/8690) in der 
+Mycroft-Community aufmerksam geworden. Hier wird die Einführung der Tests angekündigt, im letzten Absatz ist aber auch die
+Rede davon, dass sie durch diese Tests auch auf Fehler in ihren offiziellen Skills aufmerksam geworden sind, die sie sich
+mitunter auch nicht erklären können. Unter folgendem [Link](https://github.com/search?q=org%3AMycroftAI+xfail&type=Code) sind alle derzeit bekannten fehlerhaften Tests von Marketplace
+Skills hinterlegt. Da es sich um ein recht junges Feature handelt, scheint es noch nicht komplett fehlerfrei zu laufen.  
+So ist uns beispielsweise aufgefallen, dass ein Test fehlschlägt, wenn eine Zahl ausgeschrieben wird, der gleiche Test aber
+erfolgreich durchläuft, wenn die Zahl als tatsächliches Zahlsymbol eingefügt wird, ein Umstand der sich bei einer Spracherkennungssoftware
+nicht ganz erklären lässt.
 
