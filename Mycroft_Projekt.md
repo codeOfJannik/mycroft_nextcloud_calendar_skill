@@ -18,7 +18,7 @@ auf der nextcloud-Instanz (https://next.social-robot.info/nc) zur Verfügung.
 
 ## Aufgabenstellung
 Ziel ist es einen eigenen Skill zu entwickeln, der die nächsten Eintragungen in einem nextcloud-Kalender
-verkünden soll. Folgende Bonusaufgaben sind optional:
+verkünden soll. Folgende optionale Bonusaufgaben wurden implementiert:
 - Kalendereintrag machen
 - bestimmten Tag abfragen
 - Event löschen
