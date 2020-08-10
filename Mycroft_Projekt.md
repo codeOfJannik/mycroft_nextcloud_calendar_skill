@@ -80,9 +80,8 @@ Feature: next-appointment
 
   Scenario Outline: next appointment
     Given an english speaking user
-    When the user says <when is my next appointment>
-    Then "nextcloud-calendar" should reply with anything
-    And the reply should contain "appointment"
+    When the user says "<when is my next appointment>"
+    Then mycroft reply should contain "appointment"
 
     Examples: When is my next appointment
       | when is my next appointment |
@@ -94,8 +93,8 @@ Feature: next-appointment
 Im "Scenario Outline" wird der allgemein Testfall beschrieben. Da unsere Implementierung nur die englische Sprache unterstützt,
 ist immer ein englischsprachiger Benutzer gegeben. Der `When-Then` Test beschreibt, was passiert, wenn ein Nutzer eine gewisse
 Phrase verwendet. Im obigen Beispiel gibt es zwei Mögliche Fälle: Es gibt ein geplantes Event in der Zukunft oder eben nicht.
-Die Gemeinsamkeit der Sprachausgabe für beide Fälle ist hier nur das Wort "appointment", weshalb nur geprüft wird, ob der Skill
-überhaupt etwas antwortet und die Antwort "appointment" enthält.
+Die Gemeinsamkeit der Sprachausgabe für beide Fälle ist hier nur das Wort "appointment", weshalb nur geprüft wird, ob die Antwort des Skills
+"appointment" enthält.
 
 Basierend auf den Scenarios der Testfiles wurden anschließend die jeweiligen .dialog 
 und .intent Dateien angelegt, ebenfalls mit Vorüberlegungen auf welche Weise der Benutzer
