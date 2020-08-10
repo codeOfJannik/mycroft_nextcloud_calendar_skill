@@ -94,7 +94,7 @@ Feature: next-appointment
 Im "Scenario Outline" wird der allgemein Testfall beschrieben. Da unsere Implementierung nur die englische Sprache unterstützt,
 ist immer ein englischsprachiger Benutzer gegeben. Der `When-Then` Test beschreibt, was passiert, wenn ein Nutzer eine gewisse
 Phrase verwendet. Im obigen Beispiel gibt es zwei Mögliche Fälle: Es gibt ein geplantes Event in der Zukunft oder eben nicht.
-Die Gemeinsamkeit der sprachausgabe für beide Fälle ist hier nur das Wort "appointment", weshalb nur geprüft wird, ob der Skill
+Die Gemeinsamkeit der Sprachausgabe für beide Fälle ist hier nur das Wort "appointment", weshalb nur geprüft wird, ob der Skill
 überhaupt etwas antwortet und die Antwort "appointment" enthält.
 
 Basierend auf den Scenarios der Testfiles wurden anschließend die jeweiligen .dialog 
