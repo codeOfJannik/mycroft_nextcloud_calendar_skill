@@ -18,7 +18,7 @@ Hey Mycroft
 
 
 ## Credits
-Jannik Schlemmer & Jan Ziemann
+Jannik S. & Jan Z.
 
 ## Category
 **Daily**  
