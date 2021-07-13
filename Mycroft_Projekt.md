@@ -1,8 +1,8 @@
 # Mycroft Projekt 
 
 ## Projektgruppe
-Jannik Schlemmer (js329@hdm-stuttgart.de)
-Jan Ziemann (jz043@hdm-stuttgart.de)
+Jannik S. (js329@hdm-stuttgart.de)
+Jan Z. (jz043@hdm-stuttgart.de)
 
 ## Organisatorisches
 Uns stand beiden jeweils ein eigener Raspberry Pi 4, sowie der MiFa Lautsprecher zur Wiedergabe
